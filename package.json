@@ -6,8 +6,8 @@
   "module": "build/module/index.js",
   "browser": "build/browser/index.esm.js",
   "typings": "build/main/index.d.ts",
-  "unpkg": "build/browser/filestack.min.js",
-  "repository": "https://github.com/lwyj123/ts-js",
+  "unpkg": "build/browser/fileportal.min.js",
+  "repository": "https://github.com/sundogrd/fileportal-js",
   "author": "lwyj123 <443474713@qq.com>",
   "license": "MIT",
   "files": [
@@ -61,20 +61,10 @@
     "uglify-es": "^3.3.10"
   },
   "keywords": [
-    "filestack",
     "filepicker",
     "upload",
     "files",
-    "multipart",
-    "S3",
-    "transform",
-    "cropper",
-    "document viewer",
-    "images",
-    "image processing",
-    "file management",
-    "universal",
-    "isomorphic"
+    "multipart"
   ],
   "nyc": {
     "exclude": [
