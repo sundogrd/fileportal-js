@@ -21,7 +21,6 @@
     "docs": "trash build/docs && typedoc src && opn build/docs/index.html",
     "docs:publish": "npm run docs && gh-pages -d build/docs",
     "release": "standard-version",
-    "prepare": "gulp build:prod",
     "publish": "npm run docs:publish && node scripts/publish.js",
     "examples": "npm run build && node ./examples/examples.js"
   },
