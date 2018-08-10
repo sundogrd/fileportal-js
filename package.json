@@ -1,13 +1,14 @@
 {
-  "name": "fileportal-js",
-  "version": "1.0.0",
-  "description": "",
+  "name": "@sundogrd/fileportal",
+  "version": "1.0.3",
+  "description": "文件传送门",
   "main": "build/main/index.js",
   "module": "build/module/index.js",
-  "browser": "build/browser/index.esm.js",
   "typings": "build/main/index.d.ts",
-  "unpkg": "build/browser/fileportal.min.js",
-  "repository": "https://github.com/sundogrd/fileportal-js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sundogrd/fileportal-js.git"
+  },
   "author": "lwyj123 <443474713@qq.com>",
   "license": "MIT",
   "files": [
@@ -15,46 +16,55 @@
     "build"
   ],
   "scripts": {
-    "build": "tsc -p ./src",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts",
     "start": "npm run build -- -w",
-    "lint": "tslint --project . src/**/*.ts",
-    "docs": "trash build/docs && typedoc src && opn build/docs/index.html",
-    "docs:publish": "npm run docs && gh-pages -d build/docs",
-    "release": "standard-version",
-    "publish": "npm run docs:publish && node scripts/publish.js",
-    "examples": "npm run build && node ./examples/examples.js"
+    "docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
+    "lint": "eslint --project . src/**/*.ts",
+    "examples": "npm run build && node ./examples/examples.js",
+    "commitmsg": "commitlint -E GIT_PARAMS",
+    "test": "jest --config .jest.js"
   },
   "engines": {
-    "node": ">=5.10"
+    "node": ">=6.0.0"
   },
   "dependencies": {
-    "bowser": "^1.8.1",
-    "tslib": "^1.9.0"
+    "abab": "^2.0.0",
+    "axios": "^0.18.0",
+    "crypto-js": "^3.1.9-1",
+    "eventemitter3": "^3.1.0",
+    "tslib": "^1.9.3",
+    "utility-types": "^3.4.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.0.0-rc.1",
     "@commitlint/cli": "^7.0.0",
     "@commitlint/config-conventional": "^7.0.1",
+    "@types/axios": "^0.14.0",
+    "@types/crypto-js": "^3.1.43",
+    "@types/jest": "^23.3.1",
     "@types/node": "^10.5.2",
     "@types/sinon": "^5.0.1",
-    "browserify": "^14.5.0",
+    "@typescript-eslint/eslint-plugin": "^1.10.2",
+    "@typescript-eslint/parser": "^1.10.2",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "^23.4.2",
+    "babel-preset-env": "^1.7.0",
     "dotenv": "^4.0.0",
     "envify": "^4.1.0",
-    "gulp": "^3.9.1",
-    "gulp-better-rollup": "3.1.0",
-    "gulp-rename": "^1.3.0",
-    "gulp-replace": "^0.6.1",
-    "gulp-rollup": "^2.16.2",
-    "gulp-sourcemaps": "^2.6.4",
-    "gulp-typescript": "^4.0.2",
-    "gulp-uglify": "^3.0.0",
+    "eslint": "^5.16.0",
+    "jest": "^23.5.0",
     "jsdom": "11.11.0",
     "jsdom-global": "3.0.2",
-    "standard-version": "^4.4.0",
-    "trash-cli": "^1.4.0",
-    "tslint": "^5.11.0",
-    "tslint-config-semistandard": "^7.0.0",
-    "typedoc": "^0.11.1",
-    "typescript": "^2.9.2",
+    "regenerator-runtime": "^0.12.1",
+    "rollup": "^1.4.0",
+    "rollup-plugin-commonjs": "^9.2.1",
+    "rollup-plugin-json": "^3.1.0",
+    "rollup-plugin-node-resolve": "^4.0.1",
+    "rollup-plugin-sourcemaps": "^0.4.2",
+    "rollup-plugin-typescript2": "^0.19.3",
+    "ts-jest": "^23.1.3",
+    "typedoc": "^0.14.2",
+    "typescript": "^3.2.4",
     "uglify-es": "^3.3.10"
   },
   "keywords": [
@@ -72,5 +82,14 @@
       "lcov",
       "text-summary"
     ]
+  },
+  "bugs": {
+    "url": "https://github.com/sundogrd/fileportal-js/issues"
+  },
+  "homepage": "https://github.com/sundogrd/fileportal-js#readme",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
   }
 }

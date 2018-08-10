@@ -4,7 +4,7 @@
       "outDir": "build/main",
       "rootDir": "src",
       "moduleResolution": "node",
-      "module": "commonjs",
+      "module": "es2015",
       "declaration": true,
       "importHelpers": true,
       "inlineSourceMap": true,
@@ -12,12 +12,13 @@
       "traceResolution": false,
       "pretty": true,
       "lib" : [
-        "es6",
-        "dom"
+        "es7",
+        "dom",
+        "es6"
       ],
       "types" : [
         "node",
-        "mocha"
+        "jest"
       ],
       "baseUrl": ".",
       "typeRoots": [
@@ -26,7 +27,7 @@
       ]
     },
     "include": [
-      "src/**/*.ts"
+      "src/**/*.ts", "src/lib/__test__/core.test.js"
     ],
     "exclude": [
       "node_modules/**"
