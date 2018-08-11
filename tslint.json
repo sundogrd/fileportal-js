@@ -2,6 +2,7 @@
     "extends": "tslint-config-semistandard",
     "rules": {
       "file-header": [true, "Copyright"],
+      "indent": [true, "spaces", 4],
       "space-before-function-paren": false,
       "no-multi-spaces": false,
       "strict-type-predicates": false,
