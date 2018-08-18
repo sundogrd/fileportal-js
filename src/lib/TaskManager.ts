@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events';
+
 export enum ETaskState {
   PREUPLOAD = 'preupload',  // 等待开始上传
   SCANNING = 'scanning',    // 扫描，MD5？
@@ -20,9 +22,10 @@ export type Tasks = {
   [taskId: string]: Task
 };
 
-export default class TaskManager {
+export default class TaskManager extends EventEmitter {
   tasks: Tasks;
   constructor() {
+    super()
     this.tasks = {};
   }
   addTask(): Task {
@@ -42,5 +45,20 @@ export default class TaskManager {
   }
   cancel(taskId: string): void {
     return;
+  }
+
+  /**
+   * 
+   * @param eventName 事件名称
+   * @param callback  回调函数
+   */
+  on(eventName: string, callback: (task: Task, source: string) => void): this {
+    
+    return super.on(eventName, callback)
+  }
+
+  emit(eventName: string, task: Task, source: 'api' | 'system'): boolean {
+    
+    return super.emit(eventName, task, source)
   }
 }
