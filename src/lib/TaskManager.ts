@@ -35,16 +35,24 @@ export default class TaskManager extends EventEmitter {
     return this.tasks;
   }
   start(taskId: string): void {
+    this.emit('start', this.getTask(taskId), 'api')
     return;
   }
   pause(taskId: string): void {
+    this.emit('pause', this.getTask(taskId), 'api')
     return;
   }
   resume(taskId: string): void {
+    this.emit('resume', this.getTask(taskId), 'api')
     return;
   }
   cancel(taskId: string): void {
+    this.emit('cancel', this.getTask(taskId), 'api')
     return;
+  }
+
+  getTask(taskId: string): Task {
+    return
   }
 
   /**
