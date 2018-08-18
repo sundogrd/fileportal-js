@@ -1,4 +1,4 @@
-import CryptoJS from 'crypto-js';
+import CryptoJS from 'crypto-js/md5';
 
 function readChunked(file: Blob, chunkCallback, endCallback: (err: any) => void) {
   let fileSize   = file.size;
@@ -33,7 +33,7 @@ function readChunked(file: Blob, chunkCallback, endCallback: (err: any) => void)
   readNext();
 }
 
-export function getMD5(blob: Blob, cbProgress: (progress: number) => void) {
+export function getMD5(blob: Blob, cbProgress: (progress: number) => void): Promise<string> {
   return new Promise((resolve, reject) => {
     let md5 = CryptoJS.algo.MD5.create();
     readChunked(blob, (chunk, offs, total) => {

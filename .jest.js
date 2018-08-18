@@ -26,6 +26,7 @@ module.exports = {
     'node',
   ],
   transform: {
+    "^.+\\.(t|j)sx?$": "ts-jest"
   },
   testRegex: libDir === 'dist' ? 'demo\\.test\\.js$' : '.*\\.test\\.js$',
   collectCoverageFrom: [

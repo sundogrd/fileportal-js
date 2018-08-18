@@ -93,4 +93,5 @@ client.getTasks = () => {} // 获取全部任务（包括已完成的，给调�
 1. 异步加载的模块picker有点黑科技啊，考虑后期加入一下
 
 ## TODO
-1. MD5生成key，还是UUID作为key？
+1. 扫描生成MD5为id
+2. 插件机制（designing）

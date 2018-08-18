@@ -1,16 +1,20 @@
-export enum ETaskStatus {
-  PREUPLOAD = 'preupload',
-  UPLOADING = 'uploading',
-  PAUSED = 'paused',
+export enum ETaskState {
+  PREUPLOAD = 'preupload',  // 等待开始上传
+  SCANNING = 'scanning',    // 扫描，MD5？
+  UPLOADING = 'uploading',  // 上传中
+  PAUSED = 'paused',        // 暂停
+  CANCELED = 'canceled',    // 上传取消
+  FAILED = 'failed',        // 上传失败
+  COMPLETED = 'completed',  // 上传完成
 }
 
 export type Task = {
   id: string,   // 唯一？ md5？
   name: string,
-  status: ETaskStatus,
+  state: ETaskState,
   createAt: Date,
   updateAt: Date,
-  ext: any, // 业务方自定义内容，以及progress也存在里面
+  ext: any, // 业务方自定义内容，以及progress、retryCount也存在里面
 };
 export type Tasks = {
   [taskId: string]: Task
