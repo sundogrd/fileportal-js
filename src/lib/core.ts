@@ -1,4 +1,5 @@
 import { upload } from './api/upload';
+import TaskManager from './TaskManager';
 import { EMimeType } from '../types/upload';
 import Logger from './logger';
 import { EventEmitter } from 'events';
@@ -13,15 +14,13 @@ export interface FilePortalOptions {
   tokenFun: () => Promise<string>;
 }
 
-export class FilePortal extends EventEmitter {
+export class FilePortal extends TaskManager {
   debug;
-
-  taskId: number = 0  // taskId automately increases
-  count: number = 0   // tasks' total amount
-
+  options: FilePortalOptions;
   constructor(options?: FilePortalOptions) {
     super()
     this.debug = new Logger('filePortal/core')
+    this.options = options;
   }
 
   upload(file: any) {
@@ -44,13 +43,21 @@ export class FilePortal extends EventEmitter {
     
     return super.emit(eventName, task, source)
   }
+  setOptions(options: FilePortalOptions) {
+    this.options = {
+      ...this.options,
+      ...options,
+    };
+  }
+
 }
 
 // one file one Task
-class Task {
+class Task extends EventEmitter{
   taskId: number
 
   constructor(taskId: number) {
+    super()
     this.taskId = taskId
   }
 
