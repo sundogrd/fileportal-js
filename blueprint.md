@@ -95,3 +95,5 @@ client.getTasks = () => {} // 获取全部任务（包括已完成的，给调�
 ## TODO
 1. 扫描生成MD5为id
 2. 插件机制（designing）
+3. 监测online/offline处理（自动pause和resume？）
+4. drag and drop（picker？）
