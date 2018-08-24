@@ -1,4 +1,4 @@
-import CryptoJS from 'crypto-js/md5';
+import * as CryptoJS from 'crypto-js';
 
 function readChunked(file: Blob, chunkCallback, endCallback: (err: any) => void) {
   let fileSize   = file.size;
