@@ -1,7 +1,6 @@
-import { Context } from 'vm';
 import { getName } from './utils';
-import { UploadConfig } from './types';
-import { requestWithSource } from '../request';
+import { UploadConfig, PartObj, Context } from './types';
+import { requestWithSource, request } from '../request';
 
 /**
  * @private
@@ -105,4 +104,72 @@ export const complete = (etags: string, { config, file, params }: Context): Prom
   }
   req.timeout(config.timeout);
   return req.field(formData);
+};
+
+/**
+ * Gets the S3 upload params for current part (/multipart/upload)
+ * @private
+ * @param startParams   Parameters returned from start call
+ * @param partNumber    Current part number (1 - 10000)
+ * @param size          Size of current part in bytes
+ * @param md5           MD5 hash of part
+ * @param config        Upload config
+ * @param offset        Current offset if chunking a part.
+ */
+export const getS3PartData = (part: PartObj, { config, params }: Context): Promise<any> => {
+  /* istanbul ignore next */
+  const host = getHost(config.host) || getLocationURL(params.location_url);
+  const locationRegion = params.location_region;
+
+  const fields = {
+    apikey: config.apikey,
+    part: part.number + 1,
+    size: part.size,
+    md5: part.md5,
+    ...params,
+  };
+
+  // Intelligent Ingestion
+  if (part.offset !== undefined) {
+    fields.multipart = true;
+    fields.offset = part.offset === 0 ? '0' : part.offset;
+  }
+  const formData = getFormData(fields, config);
+  const req = requestWithSource('post', `${host}/multipart/upload`);
+  /* istanbul ignore next */
+  if (locationRegion) {
+    req.set('Filestack-Upload-Region', locationRegion);
+  }
+  req.timeout(config.timeout);
+  req.field(formData);
+  return new Promise((resolve, reject) => {
+    req.end((err: Error, res: any) => {
+      if (err) return reject(err);
+      return resolve(res);
+    });
+  });
+};
+
+/**
+ * Uploads bytes directly to S3 with HTTP PUT
+ * @private
+ * @param part        ArrayBuffer with part data
+ * @param params      Params for this part returned by getS3PartData response
+ * @param onProgress  A function to be called on progress event for this part
+ * @param config
+ */
+export const uploadToS3 = (part: ArrayBuffer, params: any, onProgress: any, cfg: UploadConfig): Promise<any> => {
+  /* istanbul ignore next */
+  const host = getHost(`${cfg.host}/fakeS3`) || params.url;
+  const timeout = cfg.timeout || (part.byteLength / 100);
+  const req = request
+    .put(host)
+    .set(params.headers)
+    .timeout(timeout)
+    .send(part);
+  // Don't call progress handler if user didn't specify a callback
+  if (onProgress) {
+    return req.on('progress', onProgress);
+  }
+  return req;
 };

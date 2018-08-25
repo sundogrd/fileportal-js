@@ -1,9 +1,11 @@
 import {
-  Status, UploadConfig, Context, State, FileObj, PartObj, EStatus,
+  UploadConfig, Context, State, PartObj, EStatus,
 } from './types';
 import { getFile, closeFile, getPart } from '../../../utils/file';
-import { sumBytes, percentOfFile, gc, getName, range, makePart, flowControl } from './utils';
+import { sumBytes, percentOfFile, gc, getName, range, makePart, flowControl, throttle } from './utils';
 import throat from './throat';
+import { slicePartIntoChunks, uploadChunk, commitPart } from './intelligent';
+import { getS3PartData, uploadToS3, start, complete } from './network';
 
 /**
  * @private
@@ -77,6 +79,38 @@ export const upload = async (fileStringOrBlob, options, storeOptions, token = {}
   };
 
   return uploadFile(context, token);
+};
+
+/**
+ *
+ * @private
+ * @param part
+ * @param ctx
+ */
+const uploadPart = async (part: PartObj, ctx: Context): Promise<any> => {
+  const cfg = ctx.config;
+  // Intelligent flow commits a part only when all chunks have been uploaded
+  if (cfg.intelligent === true || part.intelligentOverride) {
+    const goChunk = flowControl(ctx, (chunk: any) => uploadChunk(chunk, ctx));
+    part.chunks = slicePartIntoChunks(part, part.chunkSize);
+    await Promise.all(part.chunks.map(throat(cfg.concurrency, goChunk)));
+    return commitPart(part, ctx);
+  }
+
+  // Or we upload the whole part (default flow)
+  const { body: s3Data } = await getS3PartData(part, ctx);
+  let onProgress;
+  if (cfg.onProgress) {
+    /* istanbul ignore next */
+    onProgress = throttle((evt: ProgressEvent) => {
+      /* istanbul ignore next */
+      if (evt.loaded > part.loaded) {
+        part.loaded = evt.loaded;
+      }
+    }, cfg.progressInterval);
+  }
+  part.request = uploadToS3(part.buffer, s3Data, onProgress, cfg);
+  return part.request;
 };
 
 /**
