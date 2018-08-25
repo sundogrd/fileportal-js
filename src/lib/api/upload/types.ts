@@ -1,7 +1,7 @@
 /**
  * @private
  */
-export const enum Status {
+export const enum EStatus {
   INIT = 'init',
   RUNNING = 'running',
   DONE = 'done',
@@ -145,4 +145,21 @@ export interface Context {
   state: State;
   file: FileObj;
   params?: any;
+}
+
+/**
+ * @private
+ */
+export interface UploadConfig extends UploadOptions {
+  apikey: string;
+  store: any;
+  concurrency: number;
+  partSize: number;
+  retryFactor: number;
+  retryMaxTime: number;
+  progressInterval: number;
+  policy?: string;
+  signature?: string;
+  customName?: string;
+  mimetype?: string;
 }

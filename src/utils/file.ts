@@ -1,6 +1,6 @@
 import { atob } from 'abab';
 import { getMD5 } from './md5';
-import { PartObj } from '../lib/api/upload/types';
+import { PartObj, Context } from '../lib/api/upload/types';
 
 /**
  * Is file?
@@ -100,25 +100,23 @@ const readFile = (file: any) => {
  * Reads a slice of a file based on the current part.
  * @private
  */
-export const getPart = (part: PartObj, ctx: Context) => {
-  return readFile(sliceFile(ctx, part.number))
-    .then((evt: any) => {
-      const buffer = evt.target.result;
-      const newPart = {
-        ...part,
-        buffer,
-        size: buffer.byteLength,
-        md5: getMD5(buffer, null),
-      };
-      return newPart;
-    });
+export const getPart = async (part: PartObj, ctx: Context): Promise<PartObj> => {
+  const evt = await readFile(sliceFile(ctx, part.number)) as any;
+  const buffer = evt.target.result;
+  const newPart = {
+    ...part,
+    buffer,
+    size: buffer.byteLength,
+    md5: await getMD5(buffer, null),
+  };
+  return newPart;
 };
 
 /**
  * Get a Blob from a File or string.
  * @private
  */
-export const getFile = (fileOrString: any): Promise<Blob> => {
+export const getFile = (fileOrString: String | Blob): Promise<Blob> => {
   let file: any = fileOrString;
   if (typeof fileOrString === 'string') {
     file = b64toBlob(file);
@@ -132,4 +130,4 @@ export const getFile = (fileOrString: any): Promise<Blob> => {
 /**
  * This is a noop in browsers
  */
-export const closeFile = () => undefined;
+export const closeFile = (fd: number) => undefined;
