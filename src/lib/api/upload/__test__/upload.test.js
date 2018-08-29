@@ -42,11 +42,21 @@ const dataURI = `data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZ
 const b64string = 'dGVzdA=='; // b64 for "test"
 
 describe('upload file', () => {
+  it('simple demo', (done) => {
+    upload(file, { onProgress }, {}, token)
+      .then(res => {
+        console.log('success: ', res)
+      })
+      .catch(err => {
+        console.log(err)
+      });
+  });
   it('should upload a base64 string successfully and return a handle', (done) => {
     if (ENV.isNode) {
       return done();
     }
-    upload(session, b64string, {
+    const apikey = 'YOUR_APIKEY';
+    upload({urls}, b64string, {
       retry: 0,
     }, {
       filename: 'filestack.txt',

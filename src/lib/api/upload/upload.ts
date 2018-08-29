@@ -7,6 +7,14 @@ import throat from './throat';
 import { slicePartIntoChunks, uploadChunk, commitPart } from './intelligent';
 import { getS3PartData, uploadToS3, start, complete } from './network';
 
+// lab
+import { requestWithSource, request } from '../request';
+
+export const uploadNew = async ({ url, file }) => {
+  // TODO：是不是换成axios
+  request('post', `${url}/multipart/start`);
+};
+
 /**
  * @private
  */
