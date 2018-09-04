@@ -31,13 +31,17 @@ const formatETags = (etags: any): string => etags.map((tag: string, idx: number)
    * @param fields  Object containing form data keys
    * @param config  Upload config
    */
-export const getFormData = (fields: any, { store }: UploadConfig): {} => {
+export const getFormData = (fields: any = {}, { store = {} }: UploadConfig): {} => {
   const fd: any = {};
   Object.keys(fields).forEach((key: string) => {
-    if (fields[key]) fd[key] = fields[key];
+    if (fields[key]) {
+      fd[key] = fields[key];
+    }
   });
   Object.keys(store).forEach((key: string) => {
-    if (store[key]) fd[key] = store[key];
+    if (store[key]) {
+      fd[key] = store[key];
+    }
   });
   return fd;
 };
@@ -69,6 +73,34 @@ export const start = ({ config, file }: Context): Promise<any> => {
   return requestWithSource('post', `${config.host}/multipart/start`)
       .timeout(config.timeout)
       .field(formData);
+};
+
+export const upload = (part: PartObj, { config, params }: Context): Promise<any> => {
+  const host = 'http://127.0.0.1:8898';
+  const fields = {
+    // part: part.number + 1,
+    size: part.size,
+    md5: part.md5,
+    buffer: part.buffer,
+    ...params,
+  };
+
+  // // Intelligent Ingestion
+  // if (part.offset !== undefined) {
+  //   fields.multipart = true;
+  //   fields.offset = part.offset === 0 ? '0' : part.offset;
+  // }
+  const formData = getFormData(fields, config);
+  const req = requestWithSource('post', `${host}/multipart/upload`);
+
+  req.timeout(config.timeout);
+  req.field(formData);
+  return new Promise((resolve, reject) => {
+    req.end((err: Error, res: any) => {
+      if (err) return reject(err);
+      return resolve(res);
+    });
+  });
 };
 
 /**

@@ -1,5 +1,5 @@
 import {
-  UploadConfig, Context, State, PartObj, EStatus,
+  UploadConfig, Context, State, PartObj, EStatus, UploadOptions,
 } from './types';
 import { getFile, closeFile, getPart } from '../../../utils/file';
 import { sumBytes, percentOfFile, gc, getName, range, makePart, flowControl, throttle } from './utils';
@@ -20,7 +20,7 @@ export const uploadNew = async ({ url, file }) => {
  */
 const MIN_CHUNK_SIZE = 32 * 1024;
 
-export const upload = async (fileStringOrBlob, options, storeOptions, token = {}): Promise<any> => {
+export const upload = async (fileStringOrBlob, options: UploadOptions, storeOptions, token = {}): Promise<any> => {
   const fileBlob: any = await getFile(fileStringOrBlob);
   if ((fileBlob.size !== undefined && fileBlob.size === 0) || fileBlob.length === 0) {
     return Promise.reject(new Error('file has a size of 0.'));
@@ -42,7 +42,7 @@ export const upload = async (fileStringOrBlob, options, storeOptions, token = {}
   // test
   const session = {
     urls: {
-      uploadApiUrl: '/',
+      uploadApiUrl: 'http://localhost:8898',
     },
     apikey: 'keke',
     signature: 'fuck',

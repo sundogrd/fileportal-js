@@ -1,7 +1,13 @@
-import { upload } from '../index';
+const upload = require('../index').upload
 
-const session = ENV.session;
-const secureSession = ENV.secureSession;
+// const session = ENV.session;
+const session = {
+  urls: {
+    uploadApiUrl: 'http://localhost:8898',
+  },
+  apikey: 'keke',
+  signature: 'fuck',
+};
 const makeFile = (data, type = 'image/gif') => {
   return new Blob([data], { type });
 };
@@ -43,20 +49,18 @@ const b64string = 'dGVzdA=='; // b64 for "test"
 
 describe('upload file', () => {
   it('simple demo', (done) => {
-    upload(file, { onProgress }, {}, token)
+    upload(smallFile, { onProgress }, {}, token)
       .then(res => {
-        console.log('success: ', res)
+        console.log('success: ', res);
+        done()
       })
       .catch(err => {
-        console.log(err)
+        console.log(err);
       });
   });
   it('should upload a base64 string successfully and return a handle', (done) => {
-    if (ENV.isNode) {
-      return done();
-    }
     const apikey = 'YOUR_APIKEY';
-    upload({urls}, b64string, {
+    upload({ urls }, b64string, {
       retry: 0,
     }, {
       filename: 'filestack.txt',
@@ -72,9 +76,6 @@ describe('upload file', () => {
   });
 
   it('should upload a dataURI successfully and return a handle', (done) => {
-    if (ENV.isNode) {
-      return done();
-    }
     upload(session, dataURI, {
       retry: 0,
     }, {
