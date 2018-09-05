@@ -75,6 +75,34 @@ export const start = ({ config, file }: Context): Promise<any> => {
       .field(formData);
 };
 
+export const directUpload = (part: any, { config, params }: Context): Promise<any> => {
+  const host = 'http://127.0.0.1:8898';
+  const fields = {
+    // part: part.number + 1,
+    size: part.size,
+    md5: part.md5,
+    file: part.file,
+    ...params,
+  };
+
+  // // Intelligent Ingestion
+  // if (part.offset !== undefined) {
+  //   fields.multipart = true;
+  //   fields.offset = part.offset === 0 ? '0' : part.offset;
+  // }
+  const formData = getFormData(fields, config);
+  const req = requestWithSource('post', `${host}/multipart/upload`);
+
+  req.timeout(config.timeout);
+  req.field(formData);
+  return new Promise((resolve, reject) => {
+    req.end((err: Error, res: any) => {
+      if (err) return reject(err);
+      return resolve(res);
+    });
+  });
+};
+
 export const upload = (part: PartObj, { config, params }: Context): Promise<any> => {
   const host = 'http://127.0.0.1:8898';
   const fields = {
