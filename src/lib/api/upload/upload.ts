@@ -5,7 +5,7 @@ import { getFile, closeFile, getPart } from '../../../utils/file';
 import { sumBytes, percentOfFile, gc, getName, range, makePart, flowControl, throttle } from './utils';
 import throat from './throat';
 import { slicePartIntoChunks, uploadChunk, commitPart } from './intelligent';
-import { getS3PartData, uploadToS3, start, complete } from './network';
+import { getS3PartData, uploadToS3, start, complete, directUpload } from './network';
 
 // lab
 import { requestWithSource, request } from '../request';
@@ -19,6 +19,8 @@ export const uploadNew = async ({ url, file }) => {
  * @private
  */
 const MIN_CHUNK_SIZE = 32 * 1024;
+
+export const simpleUpload = directUpload;
 
 export const upload = async (fileStringOrBlob, options: UploadOptions, storeOptions, token = {}): Promise<any> => {
   const fileBlob: any = await getFile(fileStringOrBlob);

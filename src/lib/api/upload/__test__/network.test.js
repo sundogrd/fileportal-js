@@ -31,6 +31,7 @@ describe('post request for uploading', () => {
   it('upload', (done) => {
     const ctx = {
       config: {
+        host: 'localhost:8898',
         timeout: 4000,
       },
       params: {}
@@ -40,7 +41,8 @@ describe('post request for uploading', () => {
       const part = {
         size: smallFile.size,
         md5: res[0],
-        file: res[1], 
+        buffer: res[1], 
+        ext: 'txt'
       }
       network.directUpload(part, ctx).then(res => {
         console.log(res);

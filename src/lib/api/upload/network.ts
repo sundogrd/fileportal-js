@@ -76,12 +76,14 @@ export const start = ({ config, file }: Context): Promise<any> => {
 };
 
 export const directUpload = (part: any, { config, params }: Context): Promise<any> => {
-  const host = 'http://127.0.0.1:8898';
+  const host = config.host;
   const fields = {
     // part: part.number + 1,
     size: part.size,
     md5: part.md5,
     file: part.file,
+    buffer: part.buffer,
+    ext: part.ext,
     ...params,
   };
 

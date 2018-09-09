@@ -1,4 +1,4 @@
-import { upload } from './api/upload';
+import { upload, simpleUpload } from './api/upload';
 import TaskManager from './TaskManager';
 import { EMimeType } from '../types/upload';
 import Logger from './logger';
@@ -42,7 +42,14 @@ export class FilePortal extends TaskManager {
   add(file: any, options: AddOptions) {
     this.debug.log('upload start');
     /* istanbul ignore next */
-    return upload();
+    return upload(null, null, null);
+  }
+  simpleUpload() {
+    return simpleUpload('keke', {
+      config: {
+        host: 'localhost:8089',
+      },
+    } as any);
   }
   setOptions(options: FilePortalOptions) {
     this.options = {
