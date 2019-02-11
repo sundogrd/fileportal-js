@@ -1,6 +1,5 @@
 window.addEventListener('DOMContentLoaded', function () {
-  const apikey = 'YOUR_APIKEY';
-  const client = filestack.init(apikey);
+
 
   const onProgress = (evt) => {
     document.getElementById('progress').innerHTML = `${evt.totalPercent}%`;
@@ -10,23 +9,27 @@ window.addEventListener('DOMContentLoaded', function () {
     const files = event.target.files;
     const file = files.item(0);
     const token = {};
-    const cancel = document.getElementById('cancel');
-    const pause = document.getElementById('pause');
-    const resume = document.getElementById('resume');
 
-    [cancel, resume, pause].forEach((btn) => {
-      const id = btn.id;
-      btn.addEventListener('click', () => {
-        token[id]();
+    var reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+    reader.onload = function () {
+      var uploadFormData = new FormData();
+      var blob = new Blob([reader.result]);
+      uploadFormData.append("ext","png");
+      uploadFormData.append("buffer", blob);
+      debugger
+      
+      $.ajax({
+        type: "POST",
+        url: "http://files.lwio.me/multipart/upload",
+        data: uploadFormData,
+        processData: false,
+        contentType: false,
+        success(r) {
+          debugger
+          alert("Success!");
+        }
       });
-    });
-
-    client.upload(file, { onProgress }, {}, token)
-      .then(res => {
-        console.log('success: ', res)
-      })
-      .catch(err => {
-        console.log(err)
-      });
+    }
   });
 });
