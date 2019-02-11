@@ -15,7 +15,7 @@
     "build"
   ],
   "scripts": {
-    "build": "tsc -p ./src",
+    "build": "tsc -p ./",
     "start": "npm run build -- -w",
     "lint": "tslint --project . src/**/*.ts",
     "docs": "trash build/docs && typedoc src && opn build/docs/index.html",
