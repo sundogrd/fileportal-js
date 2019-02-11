@@ -131,7 +131,7 @@ export interface UploadConfig extends UploadOptions {
 export interface State {
   progressTick: any;
   previousPayload: any;
-  status: Status;
+  status: EStatus;
   retries: any;
   parts: PartsMap;
 }
@@ -147,19 +147,3 @@ export interface Context {
   params?: any;
 }
 
-/**
- * @private
- */
-export interface UploadConfig extends UploadOptions {
-  apikey: string;
-  store: any;
-  concurrency: number;
-  partSize: number;
-  retryFactor: number;
-  retryMaxTime: number;
-  progressInterval: number;
-  policy?: string;
-  signature?: string;
-  customName?: string;
-  mimetype?: string;
-}

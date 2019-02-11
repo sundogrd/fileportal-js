@@ -25,8 +25,9 @@ export default class TaskManager {
   constructor() {
     this.tasks = {};
   }
-  addTask(): Task {
-    return;
+  addTask(task: Task): Tasks {
+    this.tasks[task.id] = task;
+    return this.tasks;
   }
   getTasks(): Tasks {
     return this.tasks;
