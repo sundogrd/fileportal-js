@@ -28,7 +28,7 @@ module.exports = {
   transform: {
     "^.+\\.(t|j)sx?$": "ts-jest"
   },
-  testRegex: libDir === 'dist' ? 'demo\\.test\\.js$' : '.*\\.test\\.js$',
+  testRegex: libDir === 'dist' ? 'demo\\.(test|spec)\\.(jsx?|tsx?)$' : '.*\\.(test|spec)\\.(jsx?|tsx?)$',
   collectCoverageFrom: [
     // 'components/**/*.{ts,tsx}',
     // '!components/*/style/index.tsx',
