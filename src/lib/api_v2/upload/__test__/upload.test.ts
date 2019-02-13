@@ -1,4 +1,4 @@
-import { upload } from "../upload";
+import { upload } from '../upload';
 // console.log(upload)
 // const makeFile = (data, type = 'image/gif') => {
 //     return new Blob([data], { type });
@@ -46,15 +46,15 @@ const dataURI = `data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZ
 // }
 
 describe('upload test', () => {
-    it('simple demo',  (done) => {
-        upload(dataURI, {}, {}, {})
+  it('simple demo',  (done) => {
+    upload(dataURI, {}, {}, {})
         .then(res => {
           console.log(res.status);
           console.log('success: ', res.data);
           done();
         })
         .catch(err => {
-          console.log(err)
+          console.log(err);
         });
-    });
-})
+  });
+});

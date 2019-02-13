@@ -1,5 +1,5 @@
 node_modules/
 package-lock.json
 build/
-server/upload
-server/temp
+server/upload/*
+server/temp/*

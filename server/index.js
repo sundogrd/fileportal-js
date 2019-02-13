@@ -11,6 +11,7 @@ const port = 8899;
 app.use(koaBody({
     multipart: true,
     formidable: {
+		hash: 'md5',
 		uploadDir: path.resolve(__dirname, './temp'),
 		maxFileSize: 200*1024*1024,	// 设置上传文件大小最大限制，默认2M,这里200M
 		onFileBegin:(name,file) => {
@@ -39,7 +40,7 @@ router.post('/upload', async (ctx) => {
 	// console.log(file)
 	const reader = fs.createReadStream(file.path);	// 创建可读流
 	const ext = file.name.split('.').pop();		// 获取上传文件扩展名
-	console.log(ext)
+	// console.log(ext)
 	const upStream = fs.createWriteStream(path.resolve(__dirname, `./upload/${Math.random().toString()}.${ext}`));		// 创建可写流
 	reader.pipe(upStream);	// 可读流通过管道写入可写流
 	return ctx.body = '上传成功';

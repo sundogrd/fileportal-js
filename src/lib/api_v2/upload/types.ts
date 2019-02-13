@@ -1,4 +1,4 @@
-import {AxiosInstance} from 'axios'
+import { AxiosInstance } from 'axios';
 
 /**
  * @private
@@ -11,30 +11,30 @@ export const enum Status {
     PAUSED = 'paused',
 }
 
-export interface RequestInstance extends AxiosInstance{
-    cancelHandler?: any
+export interface RequestInstance extends AxiosInstance {
+  cancelHandler?: any;
 }
 
 /**
  * @private
  */
 export interface FileObj extends File {
-    buffer: Buffer;
-    name: string;
-    size: number;
-    type: string;
+  buffer: Buffer;
+  name: string;
+  size: number;
+  type: string;
 }
 
 export interface UploadOptions {
-    host?: string;
+  host?: string;
     /**
      * Node only. Treat the file argument as a path string.
      */
-    path?: boolean;
+  path?: boolean;
     /**
      * Set the MIME type of the uploaded file.
      */
-    mimetype?: string;
+  mimetype?: string;
     /**
      * Maximum size for file slices. Is overridden when intelligent=true. Default is `6 * 1024 * 1024` (6MB).
      */
@@ -46,11 +46,11 @@ export interface UploadOptions {
     /**
      * Callback for progress events.
      */
-    onProgress?: (evt: FSProgressEvent) => void;
+  onProgress?: (evt: FSProgressEvent) => void;
     /**
      * How often to report progress. Default is 1000 (in milliseconds).
      */
-    progressInterval?: number;
+  progressInterval?: number;
     /**
      * Callback for retry events.
      */
@@ -58,79 +58,78 @@ export interface UploadOptions {
     /**
      * Retry limit. Default is 10.
      */
-    retry?: number; // Retry limit
+  retry?: number; // Retry limit
     /**
      * Factor for exponential backoff on server errors. Default is 2.
      */
-    retryFactor?: number;
+  retryFactor?: number;
     /**
      * Upper bound for exponential backoff. Default is 15000.
      */
-    retryMaxTime?: number;
+  retryMaxTime?: number;
     /**
      * Timeout for network requests. Default is 120000.
      */
-    timeout?: number;
+  timeout?: number;
     /**
      * Enable/disable intelligent ingestion.
      * If truthy then intelligent ingestion must be enabled in your Filestack application.
      * Passing true/false toggles the global intelligent flow (all parts are chunked and committed).
      * Passing `'fallback'` will only use FII when network conditions may require it (only failing parts will be chunked).
      */
-    intelligent?: boolean | string;
+  intelligent?: boolean | string;
     /**
      * Set the default intiial chunk size for Intelligent Ingestion. Defaults to 8MB on desktop and 1MB on mobile.
      */
-    intelligentChunkSize?: number;
+  intelligentChunkSize?: number;
 }
 export interface FSProgressEvent {
-    totalPercent: number;
-    totalBytes: number;
-}
-  
-export interface FSRetryEvent {
-    location: string;
-    // parts: PartsMap;
-    filename: string;
-    attempt: number | undefined;
-    chunkSize?: number;
+  totalPercent: number;
+  totalBytes: number;
 }
 
+export interface FSRetryEvent {
+  location: string;
+    // parts: PartsMap;
+  filename: string;
+  attempt: number | undefined;
+  chunkSize?: number;
+}
 
 export interface UploadConfig extends UploadOptions {
-    apikey: string;
+  apikey: string;
     // store: any;
-    concurrency: number;
+  concurrency: number;
     // partSize: number;
-    retryFactor: number;
-    retryMaxTime: number;
-    progressInterval: number;
-    policy?: string;
-    signature?: string;
-    customName?: string;
-    mimetype?: string;
+  retryFactor: number;
+  retryMaxTime: number;
+  progressInterval: number;
+  policy?: string;
+  signature?: string;
+  customName?: string;
+  mimetype?: string;
 }
-  
+
 /**
  * @private
  */
 export interface State {
     // progressTick: any;
     // previousPayload: any;
-    status: Status;
+  status: Status;
     // retries: any;
     // parts: PartsMap;
 }
-  
+
 /**
  * 状态模式Context，保存一个上传Task的上下文
  * @private
  */
 export interface Context {
-    config: UploadConfig;
-    state: State;
-    file: FileObj;
-    params?: any;
+  config: UploadConfig;
+  state: State;
+  file: FileObj;
+  params?: any;
 }
 
 /**
