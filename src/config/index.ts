@@ -1,5 +1,5 @@
 export default {
-    host: 'http://os.sundogrd.com/',
+    host: "127.0.0.1:8899",//'http://os.sundogrd.com',
     apikey: 'default',
     concurrency: 3,
     progressInterval: 1000,

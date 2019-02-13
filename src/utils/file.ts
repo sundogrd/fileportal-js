@@ -40,7 +40,7 @@ const b64toBlob = (b64Data: string, sliceSize = 512) => {
     contentType = b64Data.split(',')[0].split(':')[1].split(';')[0];
     b64Data = decodeURI(byteString);
   }
-  const byteCharacters = atob(b64Data);
+  const byteCharacters = atob(b64Data); // base64解码
   const byteArrays: any[] = [];
   for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
     const slice = byteCharacters.slice(offset, offset + sliceSize);

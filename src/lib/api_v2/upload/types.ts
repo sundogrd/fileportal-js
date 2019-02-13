@@ -1,3 +1,5 @@
+import {AxiosInstance} from 'axios'
+
 /**
  * @private
  */
@@ -9,6 +11,9 @@ export const enum Status {
     PAUSED = 'paused',
 }
 
+export interface RequestInstance extends AxiosInstance{
+    cancelHandler?: any
+}
 
 /**
  * @private
@@ -110,10 +115,10 @@ export interface UploadConfig extends UploadOptions {
  * @private
  */
 export interface State {
-    progressTick: any;
-    previousPayload: any;
+    // progressTick: any;
+    // previousPayload: any;
     status: Status;
-    retries: any;
+    // retries: any;
     // parts: PartsMap;
 }
   
