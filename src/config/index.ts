@@ -1,10 +1,10 @@
+// 默认配置项
 export default {
-    host: "127.0.0.1:8899",//'http://os.sundogrd.com',
-    apikey: 'default',
-    concurrency: 3,
-    progressInterval: 1000,
-    retry: 10,
-    retryFactor: 2,
-    retryMaxTime: 15000,
-    timeout: 120000,
-}
+  apikey: 'fileportal',
+  concurrency: 3,
+  progressInterval: 1000,
+  retryFactor: 2,
+  retryMaxTime: 15000,
+  timeout: 120000,
+  mimetype: 'application/ocet-stream',
+};

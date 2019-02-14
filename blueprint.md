@@ -70,7 +70,7 @@ client.setOptions(options: IOptions)
 6. 上传，核心部分，用于文件上传到服务器
 这部分由于需要多文件上传
 ```Typescript
-client.addTask = ({
+client.add = ({
     token: () => Promise<string> | string, // 支持放一个返回promise的函数或者单纯的string，设置上传凭证
     file: File,
     extra: {}, // 扩展用

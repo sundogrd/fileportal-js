@@ -1,15 +1,3 @@
-import { upload } from '../upload';
-// console.log(upload)
-// const makeFile = (data, type = 'image/gif') => {
-//     return new Blob([data], { type });
-// };
-// const makeEmptyFile = () => {
-//     return new Blob([''], { type: 'application/text' });
-// };
-// const smallFile = makeFile('helloworld');
-// const emptyFile = makeEmptyFile();
-// const noFile = undefined;
-
 const dataURI = `data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xL
   jEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy5
   3My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6c29kaXBvZGk9Imh0dHA6Ly9zb2RpcG9kaS5zb3VyY2Vmb3JnZS5uZXQvRFREL3NvZGlwb2RpLTAuZHRkIgogICB4bWxuc
@@ -37,24 +25,46 @@ const dataURI = `data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZ
   vcm1hbCc7Zm9udC12YXJpYW50LWxpZ2F0dXJlczpub3JtYWw7Zm9udC12YXJpYW50LWNhcHM6bm9ybWFsO2ZvbnQtdmFyaWFudC1udW1lcmljOm5vcm1hbDtmb250LWZlYXR1cmUtc2V0dGluZ3M6bm9ybWFsO3RleHQtYWxpZ246c3Rhc
   nQ7d3JpdGluZy1tb2RlOmxyLXRiO3RleHQtYW5jaG9yOnN0YXJ0Ij5maWxlc3RhY2stanM8L3RzcGFuPjwvdGV4dD4KPC9zdmc+Cg==`;
 
-// const b64string = 'dGVzdA=='; // b64 for "test
-
-// function upload(file, opt) {
-//   return new Promise((resolve, reject) => {
-//     resolve('hs')
-//   })
-// }
-
+import FilePortal from '../core';
 describe('upload test', () => {
-  it('simple demo',  (done) => {
-    upload(dataURI, {}, {}, {})
-        .then(res => {
-          console.log(res.status);
-          console.log('success: ', res.data);
-          done();
-        })
-        .catch(err => {
-          console.log(err);
-        });
+  it('simple upload',  (done) => {
+    let client = new FilePortal();
+    let tasks = client.add(dataURI, {
+      token: () => 'test token',
+      config: {
+        apikey: 'test key',
+        host: 'http://127.0.0.1:8899/upload',
+      },
+    });
+    // console.log(tasks);
+    let id = 'MTU1MDEzMzQ2MTYwNDAuNzM3MA==';
+    client.start(id);
+    client.on('complete', (res) => {
+      console.log(res);
+      done();
+    });
+    client.on('error', (err) => {
+      console.log(err);
+    });
+  });
+
+  it('cancel upload', (done) => {
+    let client = new FilePortal();
+    let tasks = client.add(dataURI, {
+      token: () => 'test token',
+      config: {
+        apikey: 'test key',
+        host: 'http://127.0.0.1:8899/upload',
+      },
+    });
+    // console.log(tasks);
+    let id = 'MTU1MDEzMzQ2MTYwNDAuNzM3MA==';
+    client.start(id);
+    client.cancel(id).then(res => {
+      console.log(res);
+      done();
+    }).catch(err => {
+      console.log(err);
+    });
   });
 });
