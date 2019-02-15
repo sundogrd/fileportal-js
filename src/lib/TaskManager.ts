@@ -2,7 +2,7 @@ import BaseTask from './task/BaseTask';
 import FilePortal, { AddOptions } from './core';
 import { UploadOptions, UploadConfig, UploadEvent } from './api/upload/types';
 import { upload } from './api/upload/upload';
-import { CancelToken, Canceler } from 'axios';
+import { CancelToken, Canceler, AxiosResponse, AxiosError } from 'axios';
 export enum ETaskState {
   PREUPLOAD = 'preupload',  // 等待开始上传
   SCANNING = 'scanning',    // 扫描，MD5？
@@ -35,17 +35,32 @@ export default class TaskManager {
     this.tasks = {};
     this.owner = owner;
   }
-  private _upload(task: Task): Canceler {
+  private _upload(task: Task) {
     let file = task.payload;
     let uploadEvent: UploadEvent = {
-      success: this.owner.events.uploaded,
+      success: (res?: AxiosResponse) => {
+        // 回调uploaded
+        this.owner.events.uploaded(res, this.tasks, task);
+      },
+      error: (err?: AxiosError) => {
+        this.owner.events.error(err, this.tasks, task);
+      },
     };
-    return upload(file, task.config, {});
+    return upload(file, task.config, {}, uploadEvent);
   }
-  addTask(task: BaseTask, options: AddOptions, name?: string): Tasks {
+
+  /**
+   *  添加任务
+   * @param {BaseTask} task 任务
+   * @param {AddOptions} options  配置
+   * @param {string} [name] 任务名称
+   * @returns {Task}
+   * @memberof TaskManager
+   */
+  addTask(task: BaseTask, options: AddOptions, name?: string): Task {
     // this.tasks[task.id] = task;
     // let md5 = await getMD5(task.file);
-    let id = 'MTU1MDEzMzQ2MTYwNDAuNzM3MA=='; // btoa(`${Date.now()}${Math.random().toFixed(4)}`);
+    let id = btoa(`${Date.now()}${Math.random().toFixed(4)}`);
     let tTask: Task = {
       id: id,
       name: name || 'default',
@@ -57,7 +72,7 @@ export default class TaskManager {
       config: options.config,
     };
     this.tasks[id] = tTask;
-    return { id: tTask };
+    return tTask;
   }
   getTasks(): Tasks {
     return this.tasks;
@@ -65,8 +80,7 @@ export default class TaskManager {
   start(taskId: string): Task {
     let task = this.tasks[taskId];
     task.state = ETaskState.UPLOADING;
-    let cancelToken = this._upload(task);
-    task.cancelHandler = cancelToken;
+    task.cancelHandler = this._upload(task);
     return task;
   }
   pause(taskId: string): void {
@@ -75,12 +89,13 @@ export default class TaskManager {
   resume(taskId: string): void {
     return;
   }
-  cancel(taskId: string, message?: string): void {
+  cancel(taskId: string, message?: string, cb?: () => any): void {
     // code
     let task = this.tasks[taskId];
-    let cancelToken = task.cancelHandler;
+    let canceler = task.cancelHandler;
     task.state = ETaskState.CANCELED;
-    cancelToken(message);
+    canceler(message);
+    cb();
     return;
   }
 }

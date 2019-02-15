@@ -24,9 +24,9 @@ export interface AddOptions {
 }
 
 export interface EventResponse {
-  complete?: ((res?: Tasks) => any);
-  error?: ((err?: any) => any);
-  uploaded?: (tasks: Tasks, task?: Task) => any;
+  complete?: ((tasks?: Tasks) => any);
+  error?: ((err?: any, tasks?: Tasks, task?: Task) => any);
+  uploaded?: (res?: any, tasks?: Tasks, task?: Task) => any;
 }
 
 export const enum Events {
@@ -64,7 +64,7 @@ export default class FilePortal {
     }
   }
 
-  add(file: any, options: AddOptions): Tasks {
+  addTask(file: any, options: AddOptions): Task {
     this.debug.log('upload start');
     /* istanbul ignore next */
     let task: BaseTask = this.generateTask(file);
@@ -85,8 +85,8 @@ export default class FilePortal {
     return this;
   }
 
-  cancel(tid) {
-    this.taskManager.cancel(tid);
+  cancel(tid: string, message?: string, cb?: () => any) {
+    this.taskManager.cancel(tid, message, cb);
     return this;
   }
 
@@ -94,11 +94,11 @@ export default class FilePortal {
     this.events.complete = cb;
   }
 
-  uploaded(cb: (tasks?: Tasks, task?: Task, source?: string) => any) {
+  uploaded(cb: (res?: any, tasks?: Tasks, task?: Task, source?: string) => any) {
     this.events.uploaded = cb;
   }
 
-  error(cb: (err?: any) => any) {
+  error(cb: (err?: any, tasks?: Tasks, task?: Task) => any) {
     this.events.error = cb;
   }
 

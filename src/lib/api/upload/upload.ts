@@ -3,6 +3,7 @@ import Config from '../../../config';
 import { getFile, closeFile, getPart } from '../../../utils/file';
 import { createAxios, getCancelHandler } from '../request';
 import { Canceler } from 'axios';
+import { sleeper } from '../../../utils/helper';
 /**
  * @private
  */
@@ -14,10 +15,10 @@ const statuses = {
   PAUSED: Status.PAUSED,
 };
 
-export const upload = async (fileStringOrBlob,options: UploadConfig,storeOptions,token?: UploadEvent): Canceler => {
-  const fileBlob: any = await getFile(fileStringOrBlob);
+export const upload = (fileStringOrBlob,options: UploadConfig,storeOptions,token?: UploadEvent) => {
+  const fileBlob: any = getFile(fileStringOrBlob);
   if ((fileBlob.size !== undefined && fileBlob.size === 0) || fileBlob.length === 0) {
-    return Promise.reject(new Error('file has a size of 0.'));
+    throw new Error('file has a size of 0.');
   }
   // Configurables
   const config: UploadConfig = {
@@ -49,22 +50,24 @@ function uploadFile(context: Context, token?: UploadEvent): Canceler {
     name,
     type,
   }));
-  iAxios.post(config.host, fd, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-    // onUploadProgress: function(e) {
-    //   if (e.lengthComputable) {
-    //     console.log(e.loaded + ' ' + e.total);
-    //     this.updateProgressBarValue(e);
-    //   }
-    // //   let percentCompleted = Math.round((e.loaded * 100) / e.total);
-    // //   console.log(percentCompleted);
-    // },
-  }).then(res => {
-    token && token.success && token.success.call(this, res);
-  }).catch(err => {
-    token && token.error && token.error.call(this, err);
+  sleeper(config.delay).then(() => {
+    return iAxios.post(config.host, fd, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      // onUploadProgress: function(e) {
+      //   if (e.lengthComputable) {
+      //     console.log(e.loaded + ' ' + e.total);
+      //     this.updateProgressBarValue(e);
+      //   }
+      // //   let percentCompleted = Math.round((e.loaded * 100) / e.total);
+      // //   console.log(percentCompleted);
+      // },
+    }).then(res => {
+      token && token.success && token.success.call(this, res);
+    }).catch(err => {
+      token && token.error && token.error.call(this, err);
+    });
   });
   return getCancelHandler(iAxios);
 }

@@ -1,4 +1,4 @@
-import { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
+import { AxiosInstance, AxiosResponse, AxiosError, Cancel, Canceler } from 'axios';
 
 /**
  * @private
@@ -12,7 +12,7 @@ export const enum Status {
 }
 
 export interface RequestInstance extends AxiosInstance {
-  cancelHandler?: any;
+  cancelHandler?: Canceler;
 }
 
 /**
@@ -108,6 +108,7 @@ export interface UploadConfig extends UploadOptions {
   signature?: string;
   customName?: string;
   mimetype?: string;
+  delay?: number;
 }
 
 /**

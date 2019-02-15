@@ -29,17 +29,20 @@ import FilePortal from '../core';
 describe('upload test', () => {
   it('simple upload',  (done) => {
     let client = new FilePortal();
-    let tasks = client.add(dataURI, {
+    let tasks = client.addTask(dataURI, {
       token: () => 'test token',
       config: {
         apikey: 'test key',
         host: 'http://127.0.0.1:8899/upload',
       },
     });
-    // console.log(tasks);
-    let id = 'MTU1MDEzMzQ2MTYwNDAuNzM3MA==';
+    let { id } = tasks;
     client.start(id);
     client.on('complete', (res) => {
+      console.log(res);
+      // done();
+    });
+    client.on('uploaded', (res, tasks, task) => {
       console.log(res);
       done();
     });
@@ -50,21 +53,19 @@ describe('upload test', () => {
 
   it('cancel upload', (done) => {
     let client = new FilePortal();
-    let tasks = client.add(dataURI, {
+    let tasks = client.addTask(dataURI, {
       token: () => 'test token',
       config: {
         apikey: 'test key',
         host: 'http://127.0.0.1:8899/upload',
+        delay: 2000,  // 延迟2s
       },
     });
-    // console.log(tasks);
-    let id = 'MTU1MDEzMzQ2MTYwNDAuNzM3MA==';
+    let { id } = tasks;
     client.start(id);
-    client.cancel(id).then(res => {
-      console.log(res);
+    client.cancel(id, 'cancelTask here', () => {
+      console.log('cancel success');
       done();
-    }).catch(err => {
-      console.log(err);
     });
   });
 });

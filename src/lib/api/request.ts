@@ -4,17 +4,16 @@ import { RequestInstance } from './upload/types';
 
 // 默认1级配置
 export function createAxios(): RequestInstance {
+
   let instance: RequestInstance = axios.create({
     ...baseConfig,
   }); // 默认
-  function cancelInterceptor(config: AxiosRequestConfig): AxiosRequestConfig {
-    config.cancelToken = new axios.CancelToken((cancel => {
-      instance.cancelHandler = cancel;
-    }));
-    return config;
-  }
-
-  instance.interceptors.request.use(cancelInterceptor, error => Promise.reject(error));
+  let cancelToken = new axios.CancelToken((cancel => {
+    instance.cancelHandler = cancel;
+  }));
+  modifyAxiosConfig(instance, {
+    cancelToken: cancelToken,
+  });
   return instance;
 }
 
@@ -26,7 +25,7 @@ export function modifyAxiosConfig(instance: AxiosInstance, options: AxiosRequest
   return instance;
 }
 
-export function getCancelHandler(instance: RequestInstance): Canceler {
+export function getCancelHandler(instance: RequestInstance) {
   return instance.cancelHandler;
 }
 

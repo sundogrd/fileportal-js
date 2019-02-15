@@ -116,15 +116,15 @@ export const getPart = async (part: PartObj, ctx: Context): Promise<PartObj> => 
  * Get a Blob from a File or string.
  * @private
  */
-export const getFile = (fileOrString: String | Blob): Promise<Blob> => {
+export const getFile = (fileOrString: String | Blob): Blob | TypeError => {
   let file: any = fileOrString;
   if (typeof fileOrString === 'string') {
     file = b64toBlob(file);
   }
   if (!file || !isBlob(file)) {
-    return Promise.reject(new TypeError('File argument is not a valid Blob'));
+    return new TypeError('File argument is not a valid Blob');
   }
-  return Promise.resolve(file);
+  return file;
 };
 
 /**
