@@ -39,10 +39,19 @@ export default class TaskManager {
     let file = task.payload;
     let uploadEvent: UploadEvent = {
       success: (res?: AxiosResponse) => {
+        task.state = ETaskState.COMPLETED;
         // 回调uploaded
         this.owner.events.uploaded(res, this.tasks, task);
+        // 判断所有任务是否完成
+        let isComplete: boolean = Object.keys(this.tasks).every((taskId: string) => {
+          return this.tasks[taskId].state === ETaskState.COMPLETED;
+        });
+        if (isComplete) {
+          this.owner.events.complete(this.tasks);
+        }
       },
       error: (err?: AxiosError) => {
+        task.state = ETaskState.FAILED;
         this.owner.events.error(err, this.tasks, task);
       },
     };

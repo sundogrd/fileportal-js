@@ -38,12 +38,13 @@ describe('upload test', () => {
     });
     let { id } = tasks;
     client.start(id);
-    client.on('complete', (res) => {
-      console.log(res);
+    client.on('complete', (tasks) => {
+      console.log(tasks[0].id);
+      console.log('completed !!!');
       // done();
     });
     client.on('uploaded', (res, tasks, task) => {
-      console.log(res);
+      console.log(res.data);
       done();
     });
     client.on('error', (err) => {
@@ -58,7 +59,7 @@ describe('upload test', () => {
       config: {
         apikey: 'test key',
         host: 'http://127.0.0.1:8899/upload',
-        delay: 2000,  // 延迟2s
+        delay: 2000,  // 延迟2s, 方便取消
       },
     });
     let { id } = tasks;

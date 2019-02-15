@@ -5,8 +5,7 @@ import { ChunkTask } from './task/ChunkTask';
 import DirectTask from './task/DirectTask';
 import { UploadConfig, UploadOptions } from './api/upload/types';
 import BaseTask from './task/BaseTask';
-import Config from '../config/index';
-import { AxiosResponse, AxiosError } from 'axios';
+import { noop } from '../utils/helper';
 export interface FilePortalOptions {
   debug: boolean;
   chunkSize: number;
@@ -34,8 +33,6 @@ export const enum Events {
   UPLOADED = 'uploaded',  // 某个task完成
   ERROR =  'error',       // task出错
 }
-
-const noop = () => {};
 
 export default class FilePortal {
   debug;
@@ -71,16 +68,16 @@ export default class FilePortal {
     return this.taskManager.addTask(task, options);
   }
 
-  start(tid) {
+  start(tid: string) {
     return this.taskManager.start(tid);
   }
 
-  pause(tid) {
+  pause(tid: string) {
     this.taskManager.pause(tid);
     return this;
   }
 
-  resume(tid) {
+  resume(tid: string) {
     this.taskManager.resume(tid);
     return this;
   }

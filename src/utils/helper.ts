@@ -5,3 +5,7 @@ export function getObjType(obj: any): string {
 export function sleeper(ms) {
   return new Promise(resolve => setTimeout(() => resolve(), ms));
 }
+
+export function noop(): void {
+  return ;
+}
