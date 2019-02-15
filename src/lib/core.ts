@@ -52,10 +52,10 @@ export default class FilePortal {
   }
 
   static BLOCK_SIZE = 4 * 1024 * 1024;
-
+  static CHUNK_SIZE = 2 * 1024 * 1024;
   private generateTask = (file: File): BaseTask => {
     if (file.size > FilePortal.BLOCK_SIZE) {
-      return new ChunkTask(file, FilePortal.BLOCK_SIZE, 2 * 1024 * 1024);
+      return new ChunkTask(file, FilePortal.BLOCK_SIZE, FilePortal.CHUNK_SIZE);
     } else {
       return new DirectTask(file);
     }

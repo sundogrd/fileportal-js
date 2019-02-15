@@ -34,6 +34,7 @@ app.use(allowCrossDomain);
 
 router.post('/upload', async (ctx) => {
 	// console.log(ctx.request);
+	ctx.set('Content-Length', 1024*40);
 	console.log(ctx.request.body)
 	console.log(ctx.request.files);
 	const file = ctx.request.files.file;	// 获取上传文件
