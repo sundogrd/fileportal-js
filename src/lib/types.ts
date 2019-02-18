@@ -54,7 +54,7 @@ export type Task = {
   createAt: Date,
   payload: Blob,
   token?: (() => Promise<string>) | string,
-  cancelHandler?: Canceler,
+  cancelHandler?: Canceler | Canceler[],
   config: TaskOption,
   task: BaseTask,
   ext: any, // 业务方自定义内容，以及progress、retryCount也存在里面
@@ -143,4 +143,9 @@ export const enum TaskEvents {
   CANCEL = 'cancel',
   FAIL = 'fail',
   SUCCESS = 'success',
+}
+
+export interface TaskEventsHandler {
+  success: (res?: any) => any;
+  error: (err?: any) => any;
 }

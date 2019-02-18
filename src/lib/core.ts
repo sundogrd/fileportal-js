@@ -9,6 +9,7 @@ import { FilePortalOptions, TaskOption, FilePortalEvents, FilePortalCompleteCB, 
 import defaultOptions from '../config/index';
 import { Cancel } from 'axios';
 import defaultTaskOption from '../config/task';
+import { getFile } from '../utils/file';
 
 export default class FilePortal {
   debug;
@@ -40,7 +41,8 @@ export default class FilePortal {
     switch (op) {
       case true: {
         if (file.size > chunkStartSize) {
-          return new ChunkTask(file, chunkStartSize, chunkSize);
+          // 没有block，只有chunk
+          return new ChunkTask(file, chunkSize, chunkSize);
         } else {
           return new DirectTask(file);
         }
@@ -62,13 +64,17 @@ export default class FilePortal {
 
   addTask(file: any, options: TaskOption): Task {
     this.debug.log('upload start');
-    options = {
+    this.options = {
       ...this.options,
       ...defaultTaskOption,
       ...options,
     };
-    let task: BaseTask = this._generateTask(file, options.smart);
-    return this.taskManager.addTask(task, options);
+    const fileBlob: any = getFile(file);
+    if ((fileBlob.size !== undefined && fileBlob.size === 0) || fileBlob.length === 0) {
+      throw new Error('file has a size of 0.');
+    }
+    let task: BaseTask = this._generateTask(fileBlob, this.options.smart || true);
+    return this.taskManager.addTask(task, this.options);
   }
 
   start(tid: string) {

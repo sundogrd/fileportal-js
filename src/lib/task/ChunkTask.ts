@@ -1,9 +1,9 @@
 import BaseTask from './BaseTask';
 import { Type } from './type';
 import { upload } from '../api/upload/upload';
-import { TaskOption } from '../types';
+import { TaskOption, Task, TaskEventsHandler } from '../types';
 import { UploadEvent, UploadConfig } from '../api/upload/types';
-import { Canceler } from 'axios';
+import { Canceler, AxiosResponse, AxiosError } from 'axios';
 import { extractObj } from '../../utils/helper';
 /**
  * 分块任务
@@ -76,12 +76,52 @@ class ChunkTask extends BaseTask {
     throw Error('找不到正在处理的Block');
   }
 
+  /**
+   * 获取未处理的block
+   * @returns {Block}
+   */
+  get unProcessingBlocks(): Block[] {
+    let blocks: Block[] = [];
+    for (let block of this._blocks) {
+      if (block.processing || block.isFinish) {
+        continue;
+      }
+      blocks.push(block);
+    }
+    return blocks;
+  }
+
+  /**
+   * 获取正在处理的blocks
+   * @returns {Block}
+   */
+  get processingBlocks(): Block[] {
+    let blocks: Block[] = [];
+    for (let block of this._blocks) {
+      if (!block.processing) {
+        continue;
+      }
+      blocks.push(block);
+    }
+    return blocks;
+  }
+
   get finishedBlocksSize(): number {
     let size: number = 0;
     for (let block of this._blocks) {
       size += block.isFinish ? block.data.size : 0;
     }
     return size;
+  }
+
+  get finishedBlocks(): Block[] {
+    let blocks: Block[] = [];
+    for (let block of this._blocks) {
+      if (block.isFinish) {
+        blocks.push(block);
+      }
+    }
+    return blocks;
   }
 
   get chunks(): Chunk[] {
@@ -126,9 +166,53 @@ class ChunkTask extends BaseTask {
   }
 
   // code here
-  upload(file: Blob, option: TaskOption, uploadEvents?: UploadEvent): Canceler {
+  upload(file: Blob, option: TaskOption, cancelerHandler: Canceler[], taskEventsHandler?: TaskEventsHandler) {
     let config: UploadConfig = extractObj(option, ['apikey', 'name', 'delay', 'host', 'mimetype', 'retryCount', 'retryMaxTime', 'timeout', 'progressInterval']) as UploadConfig;
-    return upload(file, config,  uploadEvents);
+    console.log('this is a log');
+    // 分块上传 上传之前需查看是否已经上传该块
+    // while (this.finishedBlocks.length !== this.blocks.length) {
+    //   return upload(file, config,  taskEventsHandler);
+    // }
+    const { concurrency } = option;
+    // let workers: Promise<any>[] = [];
+    for (let i = 0; i < concurrency && i < this.blocks.length; i++) {
+      let block = this.blocks[i];
+      block.processing = true;
+      this._excutor(block, config, cancelerHandler);
+    }
+    return cancelerHandler;
+  }
+
+  private _excutor(block: Block, config: UploadConfig, cancelers: Canceler[]) {
+    this._upload(block, config, cancelers).then((res) => {
+      res.block.isFinish = true;
+      // 判断是否还有剩余任务
+      if (this.unProcessingBlocks.length) {
+        let unProcessBlock = this.unProcessingBlocks[0];
+        unProcessBlock.processing = true;
+        return this._excutor(unProcessBlock, config, cancelers);
+      }
+    }).catch(err => {
+      // retry code
+      return err;
+    });
+  }
+
+  private _upload(block: Block, option: UploadConfig, cancelers: Canceler[]): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const uploadEvents: UploadEvent = {
+        success: (res?: AxiosResponse) => {
+          // code here
+          resolve({ res, block });
+        },
+        error: (err?: AxiosError) => {
+          // code here
+          reject({ err, block });
+        },
+      };
+      let canceler = upload(block.data, option, uploadEvents);
+      cancelers.push(canceler);
+    });
   }
 }
 
@@ -163,7 +247,8 @@ class Block {
     this._start = start;
     this._end = end;
     this._file = file;
-    this.spliceBlock2Chunk(chunkSize);
+    // 暂不分块
+    // this.spliceBlock2Chunk(chunkSize);
   }
 
   /**

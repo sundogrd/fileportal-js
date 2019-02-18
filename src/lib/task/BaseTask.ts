@@ -122,7 +122,7 @@ abstract class BaseTask {
     this._isFinish = value;
   }
 
-  upload(file: Blob, option: TaskOption, eventCB?: UploadEvent): any {
+  upload(file: Blob, option: TaskOption, cancelHandler?: Canceler | Canceler[], eventCB?: UploadEvent): any {
     // code here
     return;
   }

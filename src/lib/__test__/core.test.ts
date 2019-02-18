@@ -66,4 +66,24 @@ describe('upload test', () => {
       done();
     });
   });
+
+  it('chunk upload', (done) => {
+    let client = new FilePortal();
+    let tasks = client.addTask(dataURI, {
+      token: 'test token',
+      apikey: 'test key',
+      host: 'http://127.0.0.1:8899/upload',
+      chunkStartSize: 1024,
+      chunkSize: 1024,
+    });
+    let { id } = tasks;
+    client.start(id);
+    client.on('uploaded', (res, tasks, task) => {
+      console.log(res.data);
+      done();
+    });
+    client.on('error', (err) => {
+      console.log(err);
+    });
+  });
 });

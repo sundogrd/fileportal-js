@@ -3,7 +3,7 @@ import FilePortal from './core';
 import { UploadEvent, UploadConfig } from './api/upload/types';
 import { upload } from './api/upload/upload';
 import { CancelToken, Canceler, AxiosResponse, AxiosError } from 'axios';
-import { Tasks, Task, TaskStatus, TaskOption, TaskBaseCB, TaskEvents } from './types';
+import { Tasks, Task, TaskStatus, TaskOption, TaskBaseCB, TaskEvents, TaskEventsHandler } from './types';
 import defaultConfig from '../config/task';
 import { Type } from './task/type';
 
@@ -14,10 +14,10 @@ export default class TaskManager {
     this.tasks = {};
     this.owner = owner;
   }
-  private _upload(task: Task) {
+  private _upload(task: Task, cancelHandler: Canceler | Canceler[]) {
     let file = task.payload;
-    let uploadEvent: UploadEvent = {
-      success: (res?: AxiosResponse) => {
+    let taskEventsHandler: TaskEventsHandler = {
+      success: (res) => {
         task.state = TaskStatus.COMPLETED;
         // 回调uploaded
         this.owner.events.uploaded(res, this.tasks, task);
@@ -29,12 +29,12 @@ export default class TaskManager {
           this.owner.events.complete(this.tasks);
         }
       },
-      error: (err?: AxiosError) => {
+      error: (err) => {
         task.state = TaskStatus.FAILED;
         this.owner.events.error(err, this.tasks, task);
       },
     };
-    return task.task.upload(file, task.config, uploadEvent);
+    return task.task.upload(file, task.config, cancelHandler, taskEventsHandler);
   }
 
   /**
@@ -71,8 +71,15 @@ export default class TaskManager {
   }
   start(taskId: string): Task {
     let task = this.tasks[taskId];
+    let cancelHandler;
     task.state = TaskStatus.UPLOADING;
-    task.cancelHandler = this._upload(task);
+    if (task.task.type === Type.SIMPLE) {
+      cancelHandler = this._upload(task, cancelHandler);
+    } else if (task.task.type === Type.CHUNK) {
+      cancelHandler = [];
+      this._upload(task, cancelHandler);
+    }
+    task.cancelHandler = cancelHandler;
     return task;
   }
   pause(taskId: string): void {
@@ -84,9 +91,13 @@ export default class TaskManager {
   cancel(taskId: string, message?: string, cb?: () => any): void {
     // code
     let task = this.tasks[taskId];
-    let canceler = task.cancelHandler;
+    let canceler: Canceler | Canceler[] = task.cancelHandler;
     task.state = TaskStatus.CANCELED;
-    canceler(message);
+    if (Array.isArray(canceler)) {
+      canceler.forEach(c => c(message));
+    } else {
+      canceler(message);
+    }
     cb();
     return;
   }
