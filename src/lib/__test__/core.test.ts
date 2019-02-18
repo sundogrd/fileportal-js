@@ -30,11 +30,9 @@ describe('upload test', () => {
   it('simple upload',  (done) => {
     let client = new FilePortal();
     let tasks = client.addTask(dataURI, {
-      token: () => 'test token',
-      config: {
-        apikey: 'test key',
-        host: 'http://127.0.0.1:8899/upload',
-      },
+      token: 'test token',
+      apikey: 'test key',
+      host: 'http://127.0.0.1:8899/upload',
     });
     let { id } = tasks;
     client.start(id);
@@ -55,12 +53,11 @@ describe('upload test', () => {
   it('cancel upload', (done) => {
     let client = new FilePortal();
     let tasks = client.addTask(dataURI, {
-      token: () => 'test token',
-      config: {
-        apikey: 'test key',
-        host: 'http://127.0.0.1:8899/upload',
-        delay: 2000,  // 延迟2s, 方便取消
-      },
+      token: 'test token',
+      apikey: 'test key',
+      host: 'http://127.0.0.1:8899/upload',
+      delay: 2000,  // 延迟2s, 方便取消
+
     });
     let { id } = tasks;
     client.start(id);

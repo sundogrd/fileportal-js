@@ -9,3 +9,12 @@ export function sleeper(ms) {
 export function noop(): void {
   return ;
 }
+
+export function extractObj(obj: Object, keys: string[]): Object {
+  return Object.keys(obj).reduce((ret: Object, key: string) => {
+    if (keys.includes(key)) {
+      ret[key] = obj[key];
+    }
+    return ret;
+  }, {});
+}

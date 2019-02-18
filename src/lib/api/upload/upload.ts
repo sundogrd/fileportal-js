@@ -1,5 +1,5 @@
 import { State, UploadOptions, UploadConfig, Context, Status, UploadEvent } from './types';
-import Config from '../../../config';
+import Config from '../../../config/upload';
 import { getFile, closeFile, getPart } from '../../../utils/file';
 import { createAxios, getCancelHandler } from '../request';
 import { Canceler } from 'axios';
@@ -15,7 +15,7 @@ const statuses = {
   PAUSED: Status.PAUSED,
 };
 
-export const upload = (fileStringOrBlob,options: UploadConfig,storeOptions,token?: UploadEvent) => {
+export const upload = (fileStringOrBlob,options: UploadConfig,token?: UploadEvent) => {
   const fileBlob: any = getFile(fileStringOrBlob);
   if ((fileBlob.size !== undefined && fileBlob.size === 0) || fileBlob.length === 0) {
     throw new Error('file has a size of 0.');

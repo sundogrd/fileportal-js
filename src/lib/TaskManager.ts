@@ -1,32 +1,11 @@
 import BaseTask from './task/BaseTask';
-import FilePortal, { AddOptions } from './core';
-import { UploadOptions, UploadConfig, UploadEvent } from './api/upload/types';
+import FilePortal from './core';
+import { UploadEvent, UploadConfig } from './api/upload/types';
 import { upload } from './api/upload/upload';
 import { CancelToken, Canceler, AxiosResponse, AxiosError } from 'axios';
-export enum ETaskState {
-  PREUPLOAD = 'preupload',  // 等待开始上传
-  SCANNING = 'scanning',    // 扫描，MD5？
-  UPLOADING = 'uploading',  // 上传中
-  PAUSED = 'paused',        // 暂停
-  CANCELED = 'canceled',    // 上传取消
-  FAILED = 'failed',        // 上传失败
-  COMPLETED = 'completed',  // 上传完成
-}
-
-export type Task = {
-  id: string,   // 唯一？ md5？
-  name: string,
-  state: ETaskState,
-  createAt: Date,
-  payload: File,
-  token: () => Promise<string> | string,
-  cancelHandler?: Canceler,
-  config: UploadConfig,
-  ext: any, // 业务方自定义内容，以及progress、retryCount也存在里面
-};
-export type Tasks = {
-  [taskId: string]: Task
-};
+import { Tasks, Task, TaskStatus, TaskOption, TaskBaseCB, TaskEvents } from './types';
+import defaultConfig from '../config/task';
+import { Type } from './task/type';
 
 export default class TaskManager {
   tasks: Tasks;
@@ -39,23 +18,23 @@ export default class TaskManager {
     let file = task.payload;
     let uploadEvent: UploadEvent = {
       success: (res?: AxiosResponse) => {
-        task.state = ETaskState.COMPLETED;
+        task.state = TaskStatus.COMPLETED;
         // 回调uploaded
         this.owner.events.uploaded(res, this.tasks, task);
         // 判断所有任务是否完成
         let isComplete: boolean = Object.keys(this.tasks).every((taskId: string) => {
-          return this.tasks[taskId].state === ETaskState.COMPLETED;
+          return this.tasks[taskId].state === TaskStatus.COMPLETED;
         });
         if (isComplete) {
           this.owner.events.complete(this.tasks);
         }
       },
       error: (err?: AxiosError) => {
-        task.state = ETaskState.FAILED;
+        task.state = TaskStatus.FAILED;
         this.owner.events.error(err, this.tasks, task);
       },
     };
-    return upload(file, task.config, {}, uploadEvent);
+    return task.task.upload(file, task.config, uploadEvent);
   }
 
   /**
@@ -66,19 +45,20 @@ export default class TaskManager {
    * @returns {Task}
    * @memberof TaskManager
    */
-  addTask(task: BaseTask, options: AddOptions, name?: string): Task {
+  addTask(task: BaseTask, options: TaskOption): Task {
     // this.tasks[task.id] = task;
     // let md5 = await getMD5(task.file);
     let id = btoa(`${Date.now()}${Math.random().toFixed(4)}`);
     let tTask: Task = {
       id: id,
-      name: name || 'default',
-      state: ETaskState.PREUPLOAD,
+      name: options.name || `task${id}`,
+      state: TaskStatus.PREUPLOAD,
       createAt: task.createDate,
       ext: options.extra || {},
       payload: task.file,
       token: options.token,
-      config: options.config,
+      config: options,
+      task: task,
     };
     this.tasks[id] = tTask;
     return tTask;
@@ -86,9 +66,12 @@ export default class TaskManager {
   getTasks(): Tasks {
     return this.tasks;
   }
+  getTask(tid: string): Task {
+    return this.tasks[tid];
+  }
   start(taskId: string): Task {
     let task = this.tasks[taskId];
-    task.state = ETaskState.UPLOADING;
+    task.state = TaskStatus.UPLOADING;
     task.cancelHandler = this._upload(task);
     return task;
   }
@@ -102,9 +85,33 @@ export default class TaskManager {
     // code
     let task = this.tasks[taskId];
     let canceler = task.cancelHandler;
-    task.state = ETaskState.CANCELED;
+    task.state = TaskStatus.CANCELED;
     canceler(message);
     cb();
     return;
+  }
+
+  on(evt: string, cb: TaskBaseCB) {
+    if (evt === TaskEvents.CANCEL) {
+      // code here
+    }
+    if (evt === TaskEvents.PAUSE) {
+      // code here
+    }
+    if (evt === TaskEvents.RESUME) {
+      // code here
+    }
+    if (evt === TaskEvents.SUCCESS) {
+      // code here
+    }
+    if (evt === TaskEvents.FAIL) {
+      // code here
+    }
+    if (evt === TaskEvents.RETRY) {
+      // code here
+    }
+    if (evt === TaskEvents.PREUPLOAD) {
+      // code here
+    }
   }
 }

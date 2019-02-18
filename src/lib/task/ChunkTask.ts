@@ -1,4 +1,10 @@
 import BaseTask from './BaseTask';
+import { Type } from './type';
+import { upload } from '../api/upload/upload';
+import { TaskOption } from '../types';
+import { UploadEvent, UploadConfig } from '../api/upload/types';
+import { Canceler } from 'axios';
+import { extractObj } from '../../utils/helper';
 /**
  * 分块任务
  */
@@ -19,6 +25,7 @@ class ChunkTask extends BaseTask {
     this._blockSize = blockSize;
     this._chunkSize = chunkSize;
     this.spliceFile2Block();
+    this._type = Type.CHUNK;
   }
 
   /**
@@ -116,6 +123,12 @@ class ChunkTask extends BaseTask {
       count += block.chunks.length;
     }
     return count;
+  }
+
+  // code here
+  upload(file: Blob, option: TaskOption, uploadEvents?: UploadEvent): Canceler {
+    let config: UploadConfig = extractObj(option, ['apikey', 'name', 'delay', 'host', 'mimetype', 'retryCount', 'retryMaxTime', 'timeout', 'progressInterval']) as UploadConfig;
+    return upload(file, config,  uploadEvents);
   }
 }
 

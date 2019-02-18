@@ -12,8 +12,9 @@
       "traceResolution": false,
       "pretty": true,
       "lib" : [
-        "es6",
-        "dom"
+        "es7",
+        "dom",
+        "es6"
       ],
       "types" : [
         "node",

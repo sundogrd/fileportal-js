@@ -58,11 +58,11 @@ export interface UploadOptions {
     /**
      * Retry limit. Default is 10.
      */
-  retry?: number; // Retry limit
+  retryCount?: number; // Retry limit
     /**
      * Factor for exponential backoff on server errors. Default is 2.
      */
-  retryFactor?: number;
+  // retryFactor?: number;
     /**
      * Upper bound for exponential backoff. Default is 15000.
      */
@@ -77,11 +77,11 @@ export interface UploadOptions {
      * Passing true/false toggles the global intelligent flow (all parts are chunked and committed).
      * Passing `'fallback'` will only use FII when network conditions may require it (only failing parts will be chunked).
      */
-  intelligent?: boolean | string;
+  // intelligent?: boolean | string;
     /**
      * Set the default intiial chunk size for Intelligent Ingestion. Defaults to 8MB on desktop and 1MB on mobile.
      */
-  intelligentChunkSize?: number;
+  // intelligentChunkSize?: number;
 }
 export interface FSProgressEvent {
   totalPercent: number;
@@ -98,16 +98,10 @@ export interface FSRetryEvent {
 
 export interface UploadConfig extends UploadOptions {
   apikey: string;
-    // store: any;
-  concurrency?: number;
+  // policy?: string;
+  // signature?: string;
   partSize?: number;
-  retryFactor?: number;
-  retryMaxTime?: number;
-  progressInterval?: number;
-  policy?: string;
-  signature?: string;
-  customName?: string;
-  mimetype?: string;
+  name?: string;
   delay?: number;
 }
 
