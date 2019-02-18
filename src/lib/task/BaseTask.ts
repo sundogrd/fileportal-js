@@ -1,6 +1,6 @@
 import { Type } from './type';
 import { upload } from '../api/upload/upload';
-import { TaskOption } from '../types';
+import { TaskOption, TaskEventsHandler, Task } from '../types';
 import { UploadEvent } from '../api/upload/types';
 import { Canceler } from 'axios';
 
@@ -122,7 +122,7 @@ abstract class BaseTask {
     this._isFinish = value;
   }
 
-  upload(file: Blob, option: TaskOption, cancelHandler?: Canceler | Canceler[], eventCB?: UploadEvent): any {
+  upload(task: Task, cancelHandler?: Canceler | Canceler[], eventCB?: TaskEventsHandler): any {
     // code here
     return;
   }

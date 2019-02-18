@@ -1,19 +1,19 @@
 import BaseTask from './BaseTask';
 import { Type } from './type';
 import { upload } from '../api/upload/upload';
-import { TaskOption, Task, TaskEventsHandler } from '../types';
+import { TaskOption, Task, TaskEventsHandler, TaskStatus } from '../types';
 import { UploadEvent, UploadConfig } from '../api/upload/types';
 import { Canceler, AxiosResponse, AxiosError } from 'axios';
-import { extractObj } from '../../utils/helper';
+import { extractObj, sleeper } from '../../utils/helper';
 /**
  * 分块任务
  */
 class ChunkTask extends BaseTask {
+  task: Task;
   // 分块
   private _blocks: Block[] = [];
   private _blockSize: number = 0;
   private _chunkSize: number = 0;
-
   /**
    * 构造函数
    * @param file
@@ -166,48 +166,83 @@ class ChunkTask extends BaseTask {
   }
 
   // code here
-  upload(file: Blob, option: TaskOption, cancelerHandler: Canceler[], taskEventsHandler?: TaskEventsHandler) {
+  upload(task: Task, cancelerHandler: Canceler[], taskEventsHandler?: TaskEventsHandler) {
+    this.task = task;
+    let option = task.config;
     let config: UploadConfig = extractObj(option, ['apikey', 'name', 'delay', 'host', 'mimetype', 'retryCount', 'retryMaxTime', 'timeout', 'progressInterval']) as UploadConfig;
-    console.log('this is a log');
-    // 分块上传 上传之前需查看是否已经上传该块
-    // while (this.finishedBlocks.length !== this.blocks.length) {
-    //   return upload(file, config,  taskEventsHandler);
-    // }
+    // 分块上传 上传之前需查看是否已经上传该块 需要服务器端支持 待续
+    // code here
     const { concurrency } = option;
-    // let workers: Promise<any>[] = [];
     for (let i = 0; i < concurrency && i < this.blocks.length; i++) {
       let block = this.blocks[i];
       block.processing = true;
-      this._excutor(block, config, cancelerHandler);
+      this._excutor(block, config, cancelerHandler, taskEventsHandler);
     }
     return cancelerHandler;
   }
 
-  private _excutor(block: Block, config: UploadConfig, cancelers: Canceler[]) {
-    this._upload(block, config, cancelers).then((res) => {
-      res.block.isFinish = true;
+  /**
+   * 负责上传分块，自动重试配置次数，所有分快完成则自动调动回调
+   * @private
+   * @param {Block} block
+   * @param {UploadConfig} config
+   * @param {Canceler[]} cancelers
+   * @param {TaskEventsHandler} [taskEventsHandler]
+   * @returns
+   * @memberof ChunkTask
+   */
+  private _excutor(block: Block, config: UploadConfig, cancelers: Canceler[], taskEventsHandler?: TaskEventsHandler) {
+    return this._upload(block, config, cancelers).then((res) => {
       // 判断是否还有剩余任务
       if (this.unProcessingBlocks.length) {
         let unProcessBlock = this.unProcessingBlocks[0];
         unProcessBlock.processing = true;
-        return this._excutor(unProcessBlock, config, cancelers);
+        return this._excutor(unProcessBlock, config, cancelers, taskEventsHandler);
+      }
+      // 所有分块是否完成
+      if (this.finishedBlocksSize === this.blocks.length) {
+        // 任务完成
+        if (this.task.state === TaskStatus.COMPLETED) {
+          return;
+        } else {
+          this.task.state = TaskStatus.COMPLETED;
+          taskEventsHandler.success();
+        }
       }
     }).catch(err => {
       // retry code
-      return err;
+      if (config.retryCount > block.retryTime) {
+        block.retryTime++;
+        return sleeper(config.retryMaxTime).then(_ => {
+          taskEventsHandler.retry(block);
+          return this._excutor(block, config, cancelers, taskEventsHandler);
+        });
+      } else {
+        taskEventsHandler.failed(err);
+        return Promise.reject(err);
+      }
     });
   }
-
-  private _upload(block: Block, option: UploadConfig, cancelers: Canceler[]): Promise<any> {
+/**
+ * 上传单个分块
+ * 返回上传结果Promise
+ * @private
+ * @param {Block} block
+ * @param {UploadConfig} option
+ * @param {Canceler[]} cancelers
+ * @returns {Promise<any>}
+ * @memberof ChunkTask
+ */
+  private _upload(block: Block, option: UploadConfig, cancelers: Canceler[]): Promise<AxiosError | AxiosResponse> {
     return new Promise((resolve, reject) => {
       const uploadEvents: UploadEvent = {
         success: (res?: AxiosResponse) => {
-          // code here
-          resolve({ res, block });
+          block.isFinish = true;
+          resolve(res);
         },
         error: (err?: AxiosError) => {
           // code here
-          reject({ err, block });
+          reject(err);
         },
       };
       let canceler = upload(block.data, option, uploadEvents);
@@ -227,6 +262,7 @@ class Block {
   private _isFinish: boolean = false; // 是否上传完成
   private _processing: boolean = false; // 是否正在上传
   private _file: File;
+  private _retryTime: number; // 重传次数
 
   /**
    *
@@ -247,6 +283,7 @@ class Block {
     this._start = start;
     this._end = end;
     this._file = file;
+    this._retryTime = 0;
     // 暂不分块
     // this.spliceBlock2Chunk(chunkSize);
   }
@@ -267,6 +304,14 @@ class Block {
       // 添加到数组中
       this._chunks.push(chunk);
     }
+  }
+
+  get retryTime(): number {
+    return this._retryTime;
+  }
+
+  set retryTime(time: number) {
+    this._retryTime = time;
   }
 
   /**

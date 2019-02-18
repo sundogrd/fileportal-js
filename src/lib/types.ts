@@ -1,9 +1,9 @@
 // FilePortal
 import { Canceler } from 'axios';
-import { FPConstructoOption } from './types';
 import BaseTask from './task/BaseTask';
+import { Block } from './task/ChunkTask';
 // 初始化需要的参数
-export interface FPConstructoOption {
+export interface FPConstructorOption {
   apikey: string;                                       // 注册的ApiKey
   isClient?: boolean;                                    // 是否是客户端
   token: ((prop?: any) => Promise<string>) | string;     // token凭证
@@ -15,7 +15,7 @@ export interface FPConstructoOption {
  * @export
  * @interface FilePortalOption
  */
-export interface FilePortalOptions extends FPConstructoOption {
+export interface FilePortalOptions extends FPConstructorOption {
   chunkStartSize?: number;      // 分片至少需要文件大小
   concurrency?: number;         // 上传任务workder数
   chunkSize?: number;           // 分片大小
@@ -146,6 +146,11 @@ export const enum TaskEvents {
 }
 
 export interface TaskEventsHandler {
+  preupload?: () => any;
+  cancel?: () => any;
+  retry?: (block?: Block) => any;
   success: (res?: any) => any;
-  error: (err?: any) => any;
+  failed: (err?: any) => any;
+  pause?: () => any;
+  resume?: () => any;
 }
