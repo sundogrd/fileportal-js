@@ -2,6 +2,7 @@
 import { Canceler } from 'axios';
 import BaseTask from './task/BaseTask';
 import { Block } from './task/ChunkTask';
+import TaskManager from './TaskManager';
 // 初始化需要的参数
 export interface FPConstructorOption {
   apikey: string;                                       // 注册的ApiKey
@@ -50,6 +51,7 @@ export interface TaskOption extends FilePortalOptions {
 export type Task = {
   id: string,   // 唯一？ md5？
   name: string,
+  manager: TaskManager,
   state: TaskStatus,
   createAt: Date,
   payload: Blob,
@@ -57,6 +59,7 @@ export type Task = {
   cancelHandler?: Canceler | Canceler[],
   config: TaskOption,
   task: BaseTask,
+  on: (callback: string, cb: (res?: any) => any) => any,
   ext: any, // 业务方自定义内容，以及progress、retryCount也存在里面
 };
 
@@ -74,11 +77,11 @@ export interface FilePortalCompleteCB {
 }
 
 export interface FilePortalUploadedCB {
-  (res?: any, tasks?: Tasks, task?: Task): any;
+  (res?: any, task?: Task, tasks?: Tasks): any;
 }
 
 export interface FilePortalErrorCB {
-  (err?: any, tasks?: Tasks, task?: Task): any;
+  (err?: any, task?: Task, tasks?: Tasks): any;
 }
 
 /************** TASK **************/
@@ -149,8 +152,8 @@ export interface TaskEventsHandler {
   preupload?: () => any;
   cancel?: () => any;
   retry?: (block?: Block) => any;
-  success: (res?: any) => any;
-  failed: (err?: any) => any;
+  success: (res?: any, task?: Task, tasks?: Tasks) => any;
+  failed: (err?: any, task?: Task, tasks?: Tasks) => any;
   pause?: () => any;
   resume?: () => any;
 }

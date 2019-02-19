@@ -10,6 +10,8 @@ import { extractObj, sleeper } from '../../utils/helper';
  */
 class ChunkTask extends BaseTask {
   task: Task;
+  responses: AxiosResponse[];
+  errors: AxiosError[];
   // 分块
   private _blocks: Block[] = [];
   private _blockSize: number = 0;
@@ -26,6 +28,8 @@ class ChunkTask extends BaseTask {
     this._chunkSize = chunkSize;
     this.spliceFile2Block();
     this._type = Type.CHUNK;
+    this.responses = [];
+    this.errors = [];
   }
 
   /**
@@ -107,11 +111,7 @@ class ChunkTask extends BaseTask {
   }
 
   get finishedBlocksSize(): number {
-    let size: number = 0;
-    for (let block of this._blocks) {
-      size += block.isFinish ? block.data.size : 0;
-    }
-    return size;
+    return this.finishedBlocks.length;
   }
 
   get finishedBlocks(): Block[] {
@@ -192,33 +192,40 @@ class ChunkTask extends BaseTask {
    * @memberof ChunkTask
    */
   private _excutor(block: Block, config: UploadConfig, cancelers: Canceler[], taskEventsHandler?: TaskEventsHandler) {
+    let that = this;
+    console.log('_excutor');
     return this._upload(block, config, cancelers).then((res) => {
+      // console.log('this is correct res');
+      this.responses.push(res as AxiosResponse);
       // 判断是否还有剩余任务
-      if (this.unProcessingBlocks.length) {
-        let unProcessBlock = this.unProcessingBlocks[0];
+      if (that.unProcessingBlocks.length) {
+        let unProcessBlock = that.unProcessingBlocks[0];
         unProcessBlock.processing = true;
-        return this._excutor(unProcessBlock, config, cancelers, taskEventsHandler);
+        return that._excutor(unProcessBlock, config, cancelers, taskEventsHandler);
       }
       // 所有分块是否完成
-      if (this.finishedBlocksSize === this.blocks.length) {
+      if (that.finishedBlocksSize === that.blocks.length) {
         // 任务完成
-        if (this.task.state === TaskStatus.COMPLETED) {
+        if (that.task.state === TaskStatus.COMPLETED) {
           return;
         } else {
-          this.task.state = TaskStatus.COMPLETED;
-          taskEventsHandler.success();
+          that.task.state = TaskStatus.COMPLETED;
+          taskEventsHandler.success(this.responses);
         }
       }
-    }).catch(err => {
+    }, err => {
       // retry code
       if (config.retryCount > block.retryTime) {
         block.retryTime++;
         return sleeper(config.retryMaxTime).then(_ => {
           taskEventsHandler.retry(block);
-          return this._excutor(block, config, cancelers, taskEventsHandler);
+          return that._excutor(block, config, cancelers, taskEventsHandler);
         });
       } else {
-        taskEventsHandler.failed(err);
+        this.errors.push(err);
+        // 此时可能已经成功上传几个分片了
+        // code here
+        taskEventsHandler.failed(this.errors);
         return Promise.reject(err);
       }
     });

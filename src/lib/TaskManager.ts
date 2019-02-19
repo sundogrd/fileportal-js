@@ -1,12 +1,9 @@
 import BaseTask from './task/BaseTask';
 import FilePortal from './core';
-import { UploadEvent, UploadConfig } from './api/upload/types';
-import { upload } from './api/upload/upload';
 import { CancelToken, Canceler, AxiosResponse, AxiosError } from 'axios';
 import { Tasks, Task, TaskStatus, TaskOption, TaskBaseCB, TaskEvents, TaskEventsHandler } from './types';
-import defaultConfig from '../config/task';
 import { Type } from './task/type';
-import { noop } from 'src/utils/helper';
+import { noop } from '../utils/helper';
 
 export default class TaskManager {
   tasks: Tasks;
@@ -29,10 +26,10 @@ export default class TaskManager {
   private _upload(task: Task, cancelHandler: Canceler | Canceler[]) {
     let file = task.payload;
     let taskEventsHandler: TaskEventsHandler = {
-      success: (res) => {
+      success: (res, task, tasks) => {
         task.state = TaskStatus.COMPLETED;
         // 回调uploaded
-        this.owner.events.uploaded(res, this.tasks, task);
+        this.owner.events.uploaded(res, task, this.tasks);
         // 判断所有任务是否完成
         let isComplete: boolean = Object.keys(this.tasks).every((taskId: string) => {
           return this.tasks[taskId].state === TaskStatus.COMPLETED;
@@ -41,19 +38,19 @@ export default class TaskManager {
           this.owner.events.complete(this.tasks);
         }
       },
-      failed: (err) => {
+      failed: (err, task, tasks) => {
         task.state = TaskStatus.FAILED;
-        this.owner.events.error(err, this.tasks, task);
+        this.owner.events.error(err, task, this.tasks);
       },
     };
     this._events = {
       success: (res) => {
         this.events.success.call(this, res);
-        taskEventsHandler.success.call(this, res);
+        taskEventsHandler.success.call(this, res, task, this.tasks);
       },
       failed: (err) => {
         this.events.failed.call(this, err);
-        taskEventsHandler.failed.call(this, err);
+        taskEventsHandler.failed.call(this, err, task, this.tasks);
       },
     };
     return task.task.upload(task, cancelHandler, this._events);
@@ -70,6 +67,7 @@ export default class TaskManager {
   addTask(task: BaseTask, options: TaskOption): Task {
     // this.tasks[task.id] = task;
     // let md5 = await getMD5(task.file);
+    let self = this;
     let id = btoa(`${Date.now()}${Math.random().toFixed(4)}`);
     let tTask: Task = {
       id: id,
@@ -80,6 +78,8 @@ export default class TaskManager {
       payload: task.file,
       token: options.token,
       config: options,
+      manager: this,
+      on: self.on.bind(self),
       task: task,
     };
     this.tasks[id] = tTask;

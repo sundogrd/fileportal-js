@@ -15,6 +15,8 @@ const statuses = {
   PAUSED: Status.PAUSED,
 };
 
+let count = 0;
+
 export const upload = (fileStringOrBlob,options: UploadConfig,token?: UploadEvent) => {
   const fileBlob: any = getFile(fileStringOrBlob);
   if ((fileBlob.size !== undefined && fileBlob.size === 0) || fileBlob.length === 0) {
@@ -64,8 +66,10 @@ function uploadFile(context: Context, token?: UploadEvent): Canceler {
       // //   console.log(percentCompleted);
       // },
     }).then(res => {
+      console.log('axios success');
       token && token.success && token.success.call(this, res);
     }).catch(err => {
+      console.log('axios failed');
       token && token.error && token.error.call(this, err);
     });
   });

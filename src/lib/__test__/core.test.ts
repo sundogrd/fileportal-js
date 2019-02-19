@@ -41,7 +41,7 @@ describe('upload test', () => {
       console.log('completed !!!');
       // done();
     });
-    client.on('uploaded', (res, tasks, task) => {
+    client.on('uploaded', (res, task, tasks) => {
       console.log(res.data);
       done();
     });
@@ -78,12 +78,45 @@ describe('upload test', () => {
     });
     let { id } = tasks;
     client.start(id);
-    client.on('uploaded', (res, tasks, task) => {
-      console.log(res.data);
+    client.on('uploaded', (res, task, tasks) => {
+      console.log('chunk upload success');
+      // console.log(res.data);
+      done();
+    });
+    client.getTask(id).on('success', (res) => {
+      console.log('task on success');
+    });
+    client.on('error', (err) => {
+      console.log(err);
+    });
+  });
+
+  it('cancel chunk upload', (done) => {
+    let client = new FilePortal();
+    let tasks = client.addTask(dataURI, {
+      token: 'test token',
+      apikey: 'test key',
+      host: 'http://127.0.0.1:8899/upload',
+      chunkStartSize: 1024,
+      chunkSize: 1024,
+      delay: 3000,
+    });
+    let { id } = tasks;
+    client.start(id);
+    client.on('uploaded', (res, task, tasks) => {
+      console.log('chunk upload success');
+      // console.log(res.data);
+    });
+    client.getTask(id).on('success', (res) => {
+      console.log('task on success');
+    });
+    client.cancel(id, 'cancel chunk upload', () => {
+      console.log('cancel chunk success');
       done();
     });
     client.on('error', (err) => {
       console.log(err);
     });
   });
+
 });
