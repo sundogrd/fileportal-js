@@ -91,6 +91,7 @@ client.on(evt: String, cb: EventCB)
 
 
 **EVENT**
+
 event | des | callback
 --- | --- | ---
 'started' | 任务开始，只要有一个任务start则会回调 | (task?: Task, tasks?: Tasks) => any
