@@ -1,6 +1,6 @@
 import { atob } from 'abab';
 import { getMD5 } from './md5';
-import { PartObj, Context } from '../lib/api/upload/types';
+import { PartObj, Context } from '../lib/api_bak/upload/types';
 
 /**
  * Is file?

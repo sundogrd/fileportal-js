@@ -142,7 +142,7 @@ export default class TaskManager {
   }
 
   on(evt: string, cb: TaskBaseCB) {
-    const events = [TaskEvents.CANCEL, TaskEvents.PAUSE, TaskEvents.RESUME, TaskEvents.SUCCESS, TaskEvents.FAIL, TaskEvents.RETRY, TaskEvents.PREUPLOAD] as string[];
+    const events = [TaskEvents.CANCEL as string, TaskEvents.PAUSE, TaskEvents.RESUME, TaskEvents.SUCCESS, TaskEvents.FAIL, TaskEvents.RETRY, TaskEvents.PREUPLOAD];
     if (events.includes(evt)) {
       this.events[evt] = cb;
     }

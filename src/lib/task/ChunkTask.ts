@@ -204,6 +204,8 @@ class ChunkTask extends BaseTask {
     } as ChunkObj;
     return this._upload(block, config, cancelers).then((res) => {
       // console.log('this is correct res');
+      // 删除canceler
+      cancelers.splice(block.index, 1);
       this.responses.push(res as AxiosResponse);
       // 判断是否还有剩余任务
       if (that.unProcessingBlocks.length) {
@@ -224,6 +226,8 @@ class ChunkTask extends BaseTask {
     }, err => {
       // retry code
       // console.log('retry retry');
+      // 删除canceler
+      cancelers.splice(block.index, 1);
       if (config.retryCount > block.retryTime) {
         block.retryTime++;
         return sleeper(config.retryMaxTime).then(_ => {
@@ -244,9 +248,6 @@ class ChunkTask extends BaseTask {
       // TODO: 错误分为chunkError 和 taskError，这里是taskErrors
       console.log('task error');
       console.log(err.status);
-    }).finally(() => {
-      // 删除canceler
-      cancelers.splice(block.index, 1);
     });
   }
 /**
