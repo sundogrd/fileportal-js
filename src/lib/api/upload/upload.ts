@@ -52,11 +52,16 @@ function uploadFile(context: Context, token?: UploadEvent): Canceler {
     name,
     type,
   }));
+  if (config.chunk) {
+    fd.append('chunk', JSON.stringify(config.chunk));
+  }
   sleeper(config.delay).then(() => {
+    console.time('timeout');
     return iAxios.post(config.host, fd, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      timeout: config.timeout,
       // onUploadProgress: function(e) {
       //   if (e.lengthComputable) {
       //     console.log(e.loaded + ' ' + e.total);

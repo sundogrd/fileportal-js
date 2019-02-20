@@ -103,6 +103,15 @@ export interface UploadConfig extends UploadOptions {
   partSize?: number;
   name?: string;
   delay?: number;
+  chunk?: ChunkObj;
+}
+
+export interface ChunkObj {
+  chunkIndex: number;
+  totalChunks: number;
+  size: number;
+  type: string;
+  file: string;
 }
 
 /**

@@ -56,7 +56,7 @@ describe('upload test', () => {
       token: 'test token',
       apikey: 'test key',
       host: 'http://127.0.0.1:8899/upload',
-      delay: 2000,  // 延迟2s, 方便取消
+      // delay: 2000,  // 延迟2s, 方便取消
 
     });
     let { id } = tasks;

@@ -1,5 +1,5 @@
 // FilePortal
-import { Canceler } from 'axios';
+import { Canceler, Cancel } from 'axios';
 import BaseTask from './task/BaseTask';
 import { Block } from './task/ChunkTask';
 import TaskManager from './TaskManager';
@@ -26,7 +26,9 @@ export interface FilePortalOptions extends FPConstructorOption {
   timeout?: number;             // 超时时间
   delay?: number;               // 延迟时间
   mimetype?: string;            // 文件默认MIME
-  progressInterval?: number;     // 进度tricker间隔时间
+  progressInterval?: number;    // 进度tricker间隔时间
+  host?: string;                // 全局的上传路径
+  smart?: boolean | SmartType;  // 是否智能分片
   [option: string]: any;
 }
 
@@ -36,9 +38,7 @@ export const enum SmartType {
 }
 
 export interface TaskOption extends FilePortalOptions {
-  host?: string;
   name?: string;
-  smart?: boolean | SmartType;
   extra?: Object;
 }
 
@@ -63,13 +63,23 @@ export type Task = {
   ext: any, // 业务方自定义内容，以及progress、retryCount也存在里面
 };
 
+export type TaskExport = {
+  id: string,
+  name: string,
+  state: TaskStatus,
+  createAt: Date,
+  config: TaskOption,
+  ext: any,
+  on: (callback: string, cb: (res?: any) => any) => any,
+};
+
 export type Tasks = {
   [taskId: string]: Task
 };
 
 /************** FILEPORTAL **************/
 export interface FilePortalStartCB {
-  (tasks?: Tasks): any;
+  (task?: Task, tasks?: Tasks): any;
 }
 
 export interface FilePortalCompleteCB {
@@ -97,10 +107,12 @@ export interface TaskPauseCB extends TaskBaseCB {
 export interface TaskResumeCB extends TaskBaseCB {
 }
 
-export interface TaskFailedCB  extends TaskBaseCB {
+export interface TaskFailedCB {
+  (err?: any, task?: Task): any;
 }
 
-export interface TaskSuccessCB  extends TaskBaseCB {
+export interface TaskSuccessCB {
+  (res?: any, task?: Task): any;
 }
 
 export interface TaskRetryCB  extends TaskBaseCB {
@@ -149,11 +161,11 @@ export const enum TaskEvents {
 }
 
 export interface TaskEventsHandler {
-  preupload?: () => any;
-  cancel?: () => any;
-  retry?: (block?: Block) => any;
+  preupload?: (task?: Task) => any;
+  cancel?: (task?: Task) => any;
+  retry?: (fileOrBlock?: any, task?: Task) => any;
   success: (res?: any, task?: Task, tasks?: Tasks) => any;
   failed: (err?: any, task?: Task, tasks?: Tasks) => any;
-  pause?: () => any;
-  resume?: () => any;
+  pause?: (task?: Task) => any;
+  resume?: (task?: Task) => any;
 }

@@ -43,15 +43,23 @@ export default class TaskManager {
         this.owner.events.error(err, task, this.tasks);
       },
     };
+    let baseEvnts = ['pause', 'resume', 'cancel', 'preupload'].reduce((evts, name) => {
+      evts[name] = this.events[name].bind(this, task);
+      return evts;
+    }, {});
     this._events = {
       success: (res) => {
-        this.events.success.call(this, res);
+        this.events.success.call(this, res, task);
         taskEventsHandler.success.call(this, res, task, this.tasks);
       },
       failed: (err) => {
-        this.events.failed.call(this, err);
+        this.events.failed.call(this, err, task);
         taskEventsHandler.failed.call(this, err, task, this.tasks);
       },
+      retry: (fileOrBlock) => {
+        this.events.retry.call(this, fileOrBlock, task);
+      },
+      ...baseEvnts,
     };
     return task.task.upload(task, cancelHandler, this._events);
   }
@@ -110,13 +118,17 @@ export default class TaskManager {
   resume(taskId: string): void {
     return;
   }
-  cancel(taskId: string, message?: string, cb?: () => any): void {
+  cancel(taskId: string, message?: string, cb?: (task?: Task) => any): void {
     // code
     setTimeout(() => {
       let task = this.tasks[taskId];
       let canceler: Canceler | Canceler[] = task.cancelHandler;
       task.state = TaskStatus.CANCELED;
       if (Array.isArray(canceler)) {
+        if (canceler.length === 0) {
+          console.log('所有的请求都已被处理，不能取消了');
+          return;
+        }
         canceler.forEach(c => c(message));
       } else {
         canceler(message);
