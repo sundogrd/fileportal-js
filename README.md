@@ -4,7 +4,7 @@
 
 ### 1.1 概览
 
-    该SDK是为了博客的上传文件功能所开发，默认上传到[幻日研发团队](https://github.com/sundogrd)资源服务器，用户可自定义上传地址。
+该SDK是为了博客的上传文件功能所开发，默认上传到[幻日研发团队](https://github.com/sundogrd)资源服务器，用户可自定义上传地址。
 
 ### 1.2 目标
 
@@ -110,6 +110,7 @@ task.on('success', (res, task, tasks) => {
 });
 ```
 **EVENT**
+
 event | des | callback
 --- | --- | ---
 'preupload' | 任务之前回调 | (task?: Task) => any
