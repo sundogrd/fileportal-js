@@ -1,6 +1,6 @@
 import { atob } from 'abab';
 import { getMD5 } from './md5';
-import { PartObj, Context } from '../lib/api/upload/types';
+import { PartObj, Context } from '../lib/api_bak/upload/types';
 
 /**
  * Is file?
@@ -40,7 +40,7 @@ const b64toBlob = (b64Data: string, sliceSize = 512) => {
     contentType = b64Data.split(',')[0].split(':')[1].split(';')[0];
     b64Data = decodeURI(byteString);
   }
-  const byteCharacters = atob(b64Data);
+  const byteCharacters = atob(b64Data); // base64解码
   const byteArrays: any[] = [];
   for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
     const slice = byteCharacters.slice(offset, offset + sliceSize);
@@ -116,15 +116,15 @@ export const getPart = async (part: PartObj, ctx: Context): Promise<PartObj> => 
  * Get a Blob from a File or string.
  * @private
  */
-export const getFile = (fileOrString: String | Blob): Promise<Blob> => {
+export const getFile = (fileOrString: String | Blob): Blob | TypeError => {
   let file: any = fileOrString;
   if (typeof fileOrString === 'string') {
     file = b64toBlob(file);
   }
   if (!file || !isBlob(file)) {
-    return Promise.reject(new TypeError('File argument is not a valid Blob'));
+    return new TypeError('File argument is not a valid Blob');
   }
-  return Promise.resolve(file);
+  return file;
 };
 
 /**

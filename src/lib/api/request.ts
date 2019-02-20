@@ -1,26 +1,36 @@
-import * as agent from 'superagent';
+import axios, { AxiosInstance, AxiosRequestConfig, CancelToken, Canceler } from 'axios';
+import baseConfig from '../../config/request';
+import { RequestInstance } from './upload/types';
 
-/**
- * @private
- */
-export interface CustomReq extends agent.SuperAgentStatic {
-  [method: string]: any;
+// 默认1级配置
+export function createAxios(): RequestInstance {
+
+  let instance: RequestInstance = axios.create({
+    ...baseConfig,
+  }); // 默认
+  let cancelToken = new axios.CancelToken((cancel => {
+    instance.cancelHandler = cancel;
+  }));
+  modifyAxiosConfig(instance, {
+    cancelToken: cancelToken,
+  });
+  return instance;
 }
 
-/**
- *
- * @private
- * @param method
- * @param url
- */
-const requestWithSource = (method: string, url: string): CustomReq => {
-  const newReq: CustomReq = agent;
-  return newReq[method](url).set('Filestack-Source', 'JS-@{VERSION}');
-};
+// 2级配置
+export function modifyAxiosConfig(instance: AxiosInstance, options: AxiosRequestConfig): AxiosInstance {
+  Object.keys(options).forEach(option => {
+    instance['defaults'][option] = options[option]; // 一级配置
+  });
+  return instance;
+}
 
-/**
- * @private
- */
-const request: agent.SuperAgentStatic = agent;
+export function getCancelHandler(instance: RequestInstance) {
+  return instance.cancelHandler;
+}
 
-export { request, requestWithSource };
+function request(url: string, data?: any, config?: AxiosRequestConfig) {
+  return createAxios().post(url, data, config);
+}
+
+export default request;

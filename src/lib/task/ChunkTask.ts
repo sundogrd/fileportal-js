@@ -1,13 +1,21 @@
 import BaseTask from './BaseTask';
+import { Type } from './type';
+import { upload } from '../api/upload/upload';
+import { TaskOption, Task, TaskEventsHandler, TaskStatus } from '../types';
+import { UploadEvent, UploadConfig, ChunkObj } from '../api/upload/types';
+import { Canceler, AxiosResponse, AxiosError } from 'axios';
+import { extractObj, sleeper } from '../../utils/helper';
 /**
  * 分块任务
  */
 class ChunkTask extends BaseTask {
+  task: Task;
+  responses: AxiosResponse[];
+  errors: AxiosError[];
   // 分块
   private _blocks: Block[] = [];
   private _blockSize: number = 0;
   private _chunkSize: number = 0;
-
   /**
    * 构造函数
    * @param file
@@ -19,6 +27,9 @@ class ChunkTask extends BaseTask {
     this._blockSize = blockSize;
     this._chunkSize = chunkSize;
     this.spliceFile2Block();
+    this._type = Type.CHUNK;
+    this.responses = [];
+    this.errors = [];
   }
 
   /**
@@ -40,7 +51,8 @@ class ChunkTask extends BaseTask {
         end,
         file.slice(start, end),
         this._chunkSize,
-        file
+        file,
+        i
       );
       // 添加到数组中
       this._blocks.push(block);
@@ -69,12 +81,48 @@ class ChunkTask extends BaseTask {
     throw Error('找不到正在处理的Block');
   }
 
-  get finishedBlocksSize(): number {
-    let size: number = 0;
+  /**
+   * 获取未处理的block
+   * @returns {Block}
+   */
+  get unProcessingBlocks(): Block[] {
+    let blocks: Block[] = [];
     for (let block of this._blocks) {
-      size += block.isFinish ? block.data.size : 0;
+      if (block.processing || block.isFinish) {
+        continue;
+      }
+      blocks.push(block);
     }
-    return size;
+    return blocks;
+  }
+
+  /**
+   * 获取正在处理的blocks
+   * @returns {Block}
+   */
+  get processingBlocks(): Block[] {
+    let blocks: Block[] = [];
+    for (let block of this._blocks) {
+      if (!block.processing) {
+        continue;
+      }
+      blocks.push(block);
+    }
+    return blocks;
+  }
+
+  get finishedBlocksSize(): number {
+    return this.finishedBlocks.length;
+  }
+
+  get finishedBlocks(): Block[] {
+    let blocks: Block[] = [];
+    for (let block of this._blocks) {
+      if (block.isFinish) {
+        blocks.push(block);
+      }
+    }
+    return blocks;
   }
 
   get chunks(): Chunk[] {
@@ -117,6 +165,117 @@ class ChunkTask extends BaseTask {
     }
     return count;
   }
+
+  // code here
+  upload(task: Task, cancelerHandler: Canceler[], taskEventsHandler?: TaskEventsHandler) {
+    this.task = task;
+    let option = task.config;
+    let config: UploadConfig = extractObj(option, ['apikey', 'name', 'delay', 'host', 'mimetype', 'retryCount', 'retryMaxTime', 'timeout', 'progressInterval']) as UploadConfig;
+    // 分块上传 上传之前需查看是否已经上传该块 需要服务器端支持 待续
+    // code here
+    const { concurrency } = option;
+    for (let i = 0; i < concurrency && i < this.blocks.length; i++) {
+      let block = this.blocks[i];
+      block.processing = true;
+      this._excutor(block, config, cancelerHandler, taskEventsHandler);
+    }
+    return cancelerHandler;
+  }
+
+  /**
+   * 负责上传分块，自动重试配置次数，所有分快完成则自动调动回调
+   * @private
+   * @param {Block} block
+   * @param {UploadConfig} config
+   * @param {Canceler[]} cancelers
+   * @param {TaskEventsHandler} [taskEventsHandler]
+   * @returns
+   * @memberof ChunkTask
+   */
+  private _excutor(block: Block, config: UploadConfig, cancelers: Canceler[], taskEventsHandler?: TaskEventsHandler) {
+    let that = this;
+    // console.log('_excutor');
+    // 添加chunk参数
+    config.chunk = {
+      chunkIndex: block.index,
+      size: block.size,
+      totalChunks: that.blocks.length,
+      file: that.task.id,
+    } as ChunkObj;
+    return this._upload(block, config, cancelers).then((res) => {
+      // console.log('this is correct res');
+      // 删除canceler
+      cancelers.splice(block.index, 1);
+      this.responses.push(res as AxiosResponse);
+      // 判断是否还有剩余任务
+      if (that.unProcessingBlocks.length) {
+        let unProcessBlock = that.unProcessingBlocks[0];
+        unProcessBlock.processing = true;
+        return that._excutor(unProcessBlock, config, cancelers, taskEventsHandler);
+      }
+      // 所有分块是否完成
+      if (that.finishedBlocksSize === that.blocks.length) {
+        // 任务完成
+        if (that.task.state === TaskStatus.COMPLETED) {
+          return;
+        } else {
+          that.task.state = TaskStatus.COMPLETED;
+          taskEventsHandler.success(this.responses);
+        }
+      }
+    }, err => {
+      // retry code
+      // console.log('retry retry');
+      // 删除canceler
+      cancelers.splice(block.index, 1);
+      if (config.retryCount > block.retryTime) {
+        block.retryTime++;
+        return sleeper(config.retryMaxTime).then(_ => {
+          // console.log('retry');
+          taskEventsHandler.retry(block);
+          return that._excutor(block, config, cancelers, taskEventsHandler);
+        });
+      } else {
+        // console.log('final failed');
+        this.errors.push(err);
+        // 此时可能已经成功上传几个分片了
+        // code here
+        taskEventsHandler.failed(this.errors);  // chunkError
+        return Promise.reject(err);
+      }
+    }).catch(err => {
+      // code here
+      // TODO: 错误分为chunkError 和 taskError，这里是taskErrors
+      console.log('task error');
+      console.log(err.status);
+    });
+  }
+/**
+ * 上传单个分块
+ * 返回上传结果Promise
+ * @private
+ * @param {Block} block
+ * @param {UploadConfig} option
+ * @param {Canceler[]} cancelers
+ * @returns {Promise<any>}
+ * @memberof ChunkTask
+ */
+  private _upload(block: Block, option: UploadConfig, cancelers: Canceler[]): Promise<AxiosError | AxiosResponse> {
+    return new Promise((resolve, reject) => {
+      const uploadEvents: UploadEvent = {
+        success: (res?: AxiosResponse) => {
+          block.isFinish = true;
+          resolve(res);
+        },
+        error: (err?: AxiosError) => {
+          // code here
+          reject(err);
+        },
+      };
+      let canceler = upload(block.data, option, uploadEvents);
+      cancelers.push(canceler);
+    });
+  }
 }
 
 /**
@@ -124,13 +283,15 @@ class ChunkTask extends BaseTask {
  */
 class Block {
   private _data: Blob; // 块数据
+  private _index: number; // 当前是第几快
   private _start: number; // 起始位置
   private _end: number; // 结束位置
   private _chunks: Chunk[] = [];
   private _isFinish: boolean = false; // 是否上传完成
   private _processing: boolean = false; // 是否正在上传
   private _file: File;
-
+  private _retryTime: number; // 重传次数
+  private _size: number; // 快大小
   /**
    *
    * @param start 起始位置
@@ -144,13 +305,18 @@ class Block {
     end: number,
     data: Blob,
     chunkSize: number,
-    file: File
+    file: File,
+    index: number
   ) {
     this._data = data;
     this._start = start;
     this._end = end;
+    this._size = chunkSize;
     this._file = file;
-    this.spliceBlock2Chunk(chunkSize);
+    this._retryTime = 0;
+    this._index = index;
+    // 暂不分块
+    // this.spliceBlock2Chunk(chunkSize);
   }
 
   /**
@@ -169,6 +335,30 @@ class Block {
       // 添加到数组中
       this._chunks.push(chunk);
     }
+  }
+
+  get index(): number {
+    return this._index;
+  }
+
+  set index(index: number) {
+    this._index = index;
+  }
+
+  get size(): number {
+    return this._size;
+  }
+
+  set size(size: number) {
+    this._size = size;
+  }
+
+  get retryTime(): number {
+    return this._retryTime;
+  }
+
+  set retryTime(time: number) {
+    this._retryTime = time;
   }
 
   /**
