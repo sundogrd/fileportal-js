@@ -132,7 +132,7 @@ export interface State {
 export interface Context {
   config: UploadConfig;
   state: State;
-  file: FileObj;
+  file: File;
   params?: any;
 }
 

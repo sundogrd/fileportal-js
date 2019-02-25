@@ -69,8 +69,9 @@ export default class FilePortal {
       ...defaultTaskOption, // 默认
       ...options,
     };
-    const fileBlob: any = getFile(file);
-    if ((fileBlob.size !== undefined && fileBlob.size === 0) || fileBlob.length === 0) {
+    const fileBlob: File = getFile(file);
+    console.log(fileBlob);
+    if ((fileBlob.size !== undefined && fileBlob.size === 0)) {
       throw new Error('file has a size of 0.');
     }
     let task: BaseTask = this._generateTask(fileBlob, this.options.smart || true);

@@ -31,13 +31,11 @@
   },
   "dependencies": {
     "@types/crypto-js": "^3.1.43",
-    "@types/superagent": "^3.8.6",
     "abab": "^2.0.0",
     "axios": "^0.18.0",
     "bowser": "^1.9.4",
     "crypto-js": "^3.1.9-1",
     "koa": "^2.7.0",
-    "superagent": "^3.8.3",
     "tslib": "^1.9.0"
   },
   "devDependencies": {

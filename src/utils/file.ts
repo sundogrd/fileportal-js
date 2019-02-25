@@ -30,7 +30,7 @@ const isBlob = (blob: any): boolean => {
  * @private
  * @returns {Blob}
  */
-const b64toBlob = (b64Data: string, sliceSize = 512) => {
+const b64toBlob = (b64Data: string, sliceSize = 512): Blob => {
   let byteString;
   let contentType = '';
   if (b64Data.split(',')[0].indexOf('base64') >= 0) {
@@ -116,14 +116,15 @@ export const getPart = async (part: PartObj, ctx: Context): Promise<PartObj> => 
  * Get a Blob from a File or string.
  * @private
  */
-export const getFile = (fileOrString: String | Blob): Blob | TypeError => {
+export const getFile = (fileOrString: String | Blob): File => {
   let file: any = fileOrString;
   if (typeof fileOrString === 'string') {
     file = b64toBlob(file);
   }
   if (!file || !isBlob(file)) {
-    return new TypeError('File argument is not a valid Blob');
+    throw new TypeError('File argument is not a valid Blob');
   }
+  console.log('file:',file.type, (file as File).size);
   return file;
 };
 

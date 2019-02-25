@@ -25,98 +25,11 @@ const dataURI = `data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZ
   vcm1hbCc7Zm9udC12YXJpYW50LWxpZ2F0dXJlczpub3JtYWw7Zm9udC12YXJpYW50LWNhcHM6bm9ybWFsO2ZvbnQtdmFyaWFudC1udW1lcmljOm5vcm1hbDtmb250LWZlYXR1cmUtc2V0dGluZ3M6bm9ybWFsO3RleHQtYWxpZ246c3Rhc
   nQ7d3JpdGluZy1tb2RlOmxyLXRiO3RleHQtYW5jaG9yOnN0YXJ0Ij5maWxlc3RhY2stanM8L3RzcGFuPjwvdGV4dD4KPC9zdmc+Cg==`;
 
-import FilePortal from '../core';
-describe('upload test', () => {
-  it('simple upload',  (done) => {
-    let client = new FilePortal();
-    let tasks = client.addTask(dataURI, {
-      token: 'test token',
-      apikey: 'test key',
-      host: 'http://0.0.0.0:9991/upload',
-    });
-    let { id } = tasks;
-    client.start(id);
-    client.on('complete', (tasks) => {
-      console.log(tasks[0].id);
-      console.log('completed !!!');
-      // done();
-    });
-    client.on('uploaded', (res, task, tasks) => {
-      console.log(res.data);
-      done();
-    });
-    client.on('error', (err) => {
-      console.log(err);
-    });
+import { getFile } from '../file';
+
+describe('getFile', () => {
+  it('simple getFile', (done) => {
+    getFile(dataURI);
+    done();
   });
-
-  // it('cancel upload', (done) => {
-  //   let client = new FilePortal();
-  //   let tasks = client.addTask(dataURI, {
-  //     token: 'test token',
-  //     apikey: 'test key',
-  //     host: 'http://127.0.0.1:9991/upload',
-  //     // delay: 2000,  // 延迟2s, 方便取消
-
-  //   });
-  //   let { id } = tasks;
-  //   client.start(id);
-  //   client.cancel(id, 'cancelTask here', () => {
-  //     console.log('cancel success');
-  //     done();
-  //   });
-  // });
-
-  // it('chunk upload', (done) => {
-  //   let client = new FilePortal();
-  //   let tasks = client.addTask(dataURI, {
-  //     token: 'test token',
-  //     apikey: 'test key',
-  //     host: 'http://127.0.0.1:9991/upload',
-  //     chunkStartSize: 1024,
-  //     chunkSize: 1024,
-  //   });
-  //   let { id } = tasks;
-  //   client.start(id);
-  //   client.on('uploaded', (res, task, tasks) => {
-  //     console.log('chunk upload success');
-  //     // console.log(res.data);
-  //     done();
-  //   });
-  //   client.getTask(id).on('success', (res) => {
-  //     console.log('task on success');
-  //   });
-  //   client.on('error', (err) => {
-  //     console.log(err);
-  //   });
-  // });
-
-  // it('cancel chunk upload', (done) => {
-  //   let client = new FilePortal();
-  //   let tasks = client.addTask(dataURI, {
-  //     token: 'test token',
-  //     apikey: 'test key',
-  //     host: 'http://127.0.0.1:9991/upload',
-  //     chunkStartSize: 1024,
-  //     chunkSize: 1024,
-  //     delay: 3000,
-  //   });
-  //   let { id } = tasks;
-  //   client.start(id);
-  //   client.on('uploaded', (res, task, tasks) => {
-  //     console.log('chunk upload success');
-  //     // console.log(res.data);
-  //   });
-  //   client.getTask(id).on('success', (res) => {
-  //     console.log('task on success');
-  //   });
-  //   client.cancel(id, 'cancel chunk upload', () => {
-  //     console.log('cancel chunk success');
-  //     done();
-  //   });
-  //   client.on('error', (err) => {
-  //     console.log(err);
-  //   });
-  // });
-
 });
