@@ -5,7 +5,7 @@ import { Block } from './task/ChunkTask';
 import TaskManager from './TaskManager';
 // 初始化需要的参数
 export interface FPConstructorOption {
-  apikey: string;                                       // 注册的ApiKey
+  apiKey: string;                                       // 注册的ApiKey
   isClient?: boolean;                                    // 是否是客户端
   token: ((prop?: any) => Promise<string>) | string;     // token凭证
 }
@@ -40,6 +40,7 @@ export const enum SmartType {
 export interface TaskOption extends FilePortalOptions {
   name?: string;
   extra?: Object;
+  host?: string; // 任务级的host，提供非全局的一个host
 }
 
 // export interface EventResponse {
@@ -52,7 +53,7 @@ export type Task = {
   id: string,   // 唯一？ md5？
   name: string,
   manager: TaskManager,
-  state: TaskStatus,
+  state: ETaskStatus,
   createAt: Date,
   payload: Blob,
   token?: (() => Promise<string>) | string,
@@ -61,16 +62,6 @@ export type Task = {
   task: BaseTask,
   on: (callback: string, cb: (res?: any) => any) => any,
   ext: any, // 业务方自定义内容，以及progress、retryCount也存在里面
-};
-
-export type TaskExport = {
-  id: string,
-  name: string,
-  state: TaskStatus,
-  createAt: Date,
-  config: TaskOption,
-  ext: any,
-  on: (callback: string, cb: (res?: any) => any) => any,
 };
 
 export type Tasks = {
@@ -118,14 +109,14 @@ export interface TaskSuccessCB {
 export interface TaskRetryCB  extends TaskBaseCB {
 }
 
-export const enum FilePortalEvents {
+export const enum EFilePortalEvents {
   STARTED = 'started',
   UPLOADED = 'uploaded',
   COMPLETED = 'completed',
   ERROR =  'error',
 }
 
-export const enum FilePortalStatus {
+export const enum EFilePortalStatus {
   INIT = 'init',
   START = 'start',        // task开始
   UPLOADING = 'uploading',// 正在上传中
@@ -140,7 +131,7 @@ export interface FilePortalEventResponse {
   start?: FilePortalStartCB;
 }
 
-export const enum TaskStatus {
+export const enum ETaskStatus {
   PREUPLOAD = 'preupload',  // 等待开始上传
   SCANNING = 'scanning',    // 扫描，MD5？
   UPLOADING = 'uploading',  // 上传中
@@ -150,7 +141,7 @@ export const enum TaskStatus {
   COMPLETED = 'completed',  // 上传完成
 }
 
-export const enum TaskEvents {
+export const enum ETaskEvents {
   PREUPLOAD = 'preupload',
   RETRY = 'retry',
   RESUME = 'resume',

@@ -12,6 +12,6 @@ export default {
   timeout: 5000,
   delay: 0,
   mimetype: 'application/ocet-stream',
-  host: '//127.0.0.1:9991/upload',
+  // host: '//127.0.0.1:9991/upload', 
   smart: true,
 } as FilePortalOptions;

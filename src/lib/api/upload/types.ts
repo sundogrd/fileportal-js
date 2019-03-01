@@ -102,6 +102,7 @@ export interface UploadConfig extends UploadOptions {
   // signature?: string;
   partSize?: number;
   name?: string;
+  host: string;
   delay?: number;
   chunk?: ChunkObj;
 }

@@ -62,7 +62,7 @@ function uploadFile(context: Context, token?: UploadEvent): Canceler {
       console.log('axios success');
       token && token.success && token.success.call(this, e);
     };
-    xhr.open('POST', 'http://0.0.0.0:9991/upload');
+    xhr.open('POST', config.host);
     xhr.setRequestHeader('Content-Type', 'application/octet-stream');
     xhr.send(file);
     // return iAxios({

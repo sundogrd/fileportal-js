@@ -1,4 +1,4 @@
-import { Type } from './type';
+import { ETaskType } from './type';
 import { upload } from '../api/upload/upload';
 import { TaskOption, TaskEventsHandler, Task } from '../types';
 import { UploadEvent } from '../api/upload/types';
@@ -19,7 +19,7 @@ abstract class BaseTask {
   protected _isFinish: boolean = false;// 是否结束
   protected _result: Object;
   protected _error: any;
-  protected _type: Type;
+  protected _type: ETaskType;
 
   constructor(file: File) {
     this._file = file;
@@ -34,11 +34,11 @@ abstract class BaseTask {
     this._file = file;
   }
 
-  get type(): Type {
+  get type(): ETaskType {
     return this._type;
   }
 
-  set type(type: Type) {
+  set type(type: ETaskType) {
     this._type = type;
   }
 

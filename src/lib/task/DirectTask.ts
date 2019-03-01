@@ -1,10 +1,11 @@
 import BaseTask from './BaseTask';
-import { Type } from './type';
+import { ETaskType } from './type';
 import { upload } from '../api/upload/upload';
 import { TaskOption, TaskEventsHandler, Task } from '../types';
 import { UploadEvent, UploadConfig } from '../api/upload/types';
 import { extractObj, sleeper } from '../../utils/helper';
 import { Canceler, AxiosResponse, AxiosError } from 'axios';
+import TaskManager from '../TaskManager';
 /**
  * 直传任务
  */
@@ -12,7 +13,7 @@ class DirectTask extends BaseTask {
   private _retryTime: number;
   constructor(file: File) {
     super(file);
-    this._type = Type.SIMPLE;
+    this._type = ETaskType.SIMPLE;
     this._retryTime = 0;
   }
 

@@ -28,11 +28,15 @@ const dataURI = `data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZ
 import FilePortal from '../core';
 describe('upload test', () => {
   it('simple upload',  (done) => {
-    let client = new FilePortal();
+    let client = new FilePortal({
+      host: 'http://os.sundogrd.com/upload',
+      apiKey: 'keke',
+      token: 'keke',
+    });
     let tasks = client.addTask(dataURI, {
       token: 'test token',
-      apikey: 'test key',
-      host: 'http://0.0.0.0:9991/upload',
+      apiKey: 'test key',
+      // host: 'http://0.0.0.0:9991/upload',
     });
     let { id } = tasks;
     client.start(id);
@@ -48,7 +52,7 @@ describe('upload test', () => {
     client.on('error', (err) => {
       console.log(err);
     });
-  });
+  }, 10000);
 
   // it('cancel upload', (done) => {
   //   let client = new FilePortal();

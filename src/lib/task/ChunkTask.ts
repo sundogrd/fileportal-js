@@ -1,7 +1,7 @@
 import BaseTask from './BaseTask';
-import { Type } from './type';
+import { ETaskType } from './type';
 import { upload } from '../api/upload/upload';
-import { TaskOption, Task, TaskEventsHandler, TaskStatus } from '../types';
+import { TaskOption, Task, TaskEventsHandler, ETaskStatus } from '../types';
 import { UploadEvent, UploadConfig, ChunkObj } from '../api/upload/types';
 import { Canceler, AxiosResponse, AxiosError } from 'axios';
 import { extractObj, sleeper } from '../../utils/helper';
@@ -27,7 +27,7 @@ class ChunkTask extends BaseTask {
     this._blockSize = blockSize;
     this._chunkSize = chunkSize;
     this.spliceFile2Block();
-    this._type = Type.CHUNK;
+    this._type = ETaskType.CHUNK;
     this.responses = [];
     this.errors = [];
   }
@@ -216,10 +216,10 @@ class ChunkTask extends BaseTask {
       // 所有分块是否完成
       if (that.finishedBlocksSize === that.blocks.length) {
         // 任务完成
-        if (that.task.state === TaskStatus.COMPLETED) {
+        if (that.task.state === ETaskStatus.COMPLETED) {
           return;
         } else {
-          that.task.state = TaskStatus.COMPLETED;
+          that.task.state = ETaskStatus.COMPLETED;
           taskEventsHandler.success(this.responses);
         }
       }

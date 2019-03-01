@@ -1,18 +1,39 @@
+import { EventEmitter } from 'eventemitter3';
 import BaseTask from './task/BaseTask';
 import FilePortal from './core';
 import { CancelToken, Canceler, AxiosResponse, AxiosError } from 'axios';
-import { Tasks, Task, TaskStatus, TaskOption, TaskBaseCB, TaskEvents, TaskEventsHandler } from './types';
-import { Type } from './task/type';
+import { Tasks, Task, ETaskStatus, TaskOption, TaskBaseCB, ETaskEvents, TaskEventsHandler } from './types';
+import { ETaskType } from './task/type';
 import { noop } from '../utils/helper';
 
+export enum ETaskManagerEvents {
+  TASK_ADDED = 'TASK_ADDED',
+  TASK_BEFORE_START = 'BEFORE_UPLOAD',
+  TASK_START = 'TASK_START',
+  TASK_SUCCEED = 'TASK_SUCCEED',
+  TASK_FAILED = 'TASK_FAILED',
+  TASK_PAUSE = 'TASK_PAUSE',
+
+  ALL_TASK_COMPLETED = 'ALL_TASK_COMPLETED',
+}
+
+export type TaskManagerOptions = {
+  host: string;
+};
+
+// 负责多任务管理
 export default class TaskManager {
+  emitter;
   tasks: Tasks;
   owner: FilePortal;
+  options: TaskManagerOptions;
   events: TaskEventsHandler;
   _events: TaskEventsHandler;
-  constructor(owner) {
+  constructor(owner, options) {
+    this.emitter = new EventEmitter();
     this.tasks = {};
     this.owner = owner;
+    this.options = options;
     this.events = this._events = {
       preupload: noop,
       success: noop,
@@ -27,19 +48,19 @@ export default class TaskManager {
     let file = task.payload;
     let taskEventsHandler: TaskEventsHandler = {
       success: (res, task, tasks) => {
-        task.state = TaskStatus.COMPLETED;
+        task.state = ETaskStatus.COMPLETED;
         // 回调uploaded
         this.owner.events.uploaded(res, task, this.tasks);
         // 判断所有任务是否完成
         let isComplete: boolean = Object.keys(this.tasks).every((taskId: string) => {
-          return this.tasks[taskId].state === TaskStatus.COMPLETED;
+          return this.tasks[taskId].state === ETaskStatus.COMPLETED;
         });
         if (isComplete) {
           this.owner.events.complete(this.tasks);
         }
       },
       failed: (err, task, tasks) => {
-        task.state = TaskStatus.FAILED;
+        task.state = ETaskStatus.FAILED;
         this.owner.events.error(err, task, this.tasks);
       },
     };
@@ -80,12 +101,15 @@ export default class TaskManager {
     let tTask: Task = {
       id: id,
       name: options.name || `task${id}`,
-      state: TaskStatus.PREUPLOAD,
+      state: ETaskStatus.PREUPLOAD,
       createAt: task.createDate,
       ext: options.extra || {},
       payload: task.file,
       token: options.token,
-      config: options,
+      config: {
+        ...this.options,
+        ...options,
+      },
       manager: this,
       on: self.on.bind(self),
       task: task,
@@ -102,10 +126,10 @@ export default class TaskManager {
   start(taskId: string): Task {
     let task = this.tasks[taskId];
     let cancelHandler;
-    task.state = TaskStatus.UPLOADING;
-    if (task.task.type === Type.SIMPLE) {
+    task.state = ETaskStatus.UPLOADING;
+    if (task.task.type === ETaskType.SIMPLE) {
       cancelHandler = this._upload(task, cancelHandler);
-    } else if (task.task.type === Type.CHUNK) {
+    } else if (task.task.type === ETaskType.CHUNK) {
       cancelHandler = [];
       this._upload(task, cancelHandler);
     }
@@ -123,7 +147,7 @@ export default class TaskManager {
     setTimeout(() => {
       let task = this.tasks[taskId];
       let canceler: Canceler | Canceler[] = task.cancelHandler;
-      task.state = TaskStatus.CANCELED;
+      task.state = ETaskStatus.CANCELED;
       if (Array.isArray(canceler)) {
         if (canceler.length === 0) {
           console.log('所有的请求都已被处理，不能取消了');
@@ -142,7 +166,7 @@ export default class TaskManager {
   }
 
   on(evt: string, cb: TaskBaseCB) {
-    const events = [TaskEvents.CANCEL as string, TaskEvents.PAUSE, TaskEvents.RESUME, TaskEvents.SUCCESS, TaskEvents.FAIL, TaskEvents.RETRY, TaskEvents.PREUPLOAD];
+    const events = [ETaskEvents.CANCEL as string, ETaskEvents.PAUSE, ETaskEvents.RESUME, ETaskEvents.SUCCESS, ETaskEvents.FAIL, ETaskEvents.RETRY, ETaskEvents.PREUPLOAD];
     if (events.includes(evt)) {
       this.events[evt] = cb;
     }

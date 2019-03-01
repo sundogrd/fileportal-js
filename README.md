@@ -48,7 +48,7 @@ smart | boolean/simple/multipart | true | false | 是否智能分片
 ### 2.2 添加任务
 
 ```
-let task: TaskExport = client.addTask(file: String|Blob, option:TaskOption) 
+let task: Task = client.addTask(file: String|Blob, option:TaskOption) 
 ```
 
 **TaskOption extends FilePortalOption**
@@ -58,22 +58,10 @@ name | type | default | ismust |des
 name | string | 'task' | false | 任务名称
 extra | object | {} | false | 自定义额外信息
 
-
-**TaskExport**
-
-name | type | default | ismust |des
----- | --- | --- | --- | ---
-id | string | '' | -- | 任务id,也是文件id，用于服务端判断重复等
-name | string | 'task' | -- | 任务名称
-state | string | 'peupload' | -- | 任务状态
-createAt | Date | -- | -- | 创建日期
-config | object | {} | -- | 任务配置
-ext | object | {} | -- | 自定义配置信息
-
 ### 2.3 开始任务
 
 ```javascript
-let task: TaskExport = client.start(tid: String);
+let task: Task = client.start(tid: String);
 
 eg: 
 let {tid} = client.addTask('test', {});
@@ -125,7 +113,7 @@ event | des | callback
 ### 2.5 取消任务
 
 ```javascript
-let task: TaskExport = client.cancel(tid: String, message?: String, cb?: (task?: Task) => any);
+let task: Task = client.cancel(tid: String, message?: String, cb?: (task?: Task) => any);
 
 eg: 
 let {tid} = client.addTask('test', {});

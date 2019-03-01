@@ -43,5 +43,5 @@ module.exports = {
       tsConfig: './tsconfig.test.json',
     },
   },
-  testURL: 'http://0.0.0.0:9991',
+  // testURL: 'http://0.0.0.0:9991',
 };

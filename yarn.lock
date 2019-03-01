@@ -2858,6 +2858,11 @@ event-emitter@^0.3.5:
     d "1"
     es5-ext "~0.10.14"
 
+eventemitter3@^3.1.0:
+  version "3.1.0"
+  resolved "http://bnpm.byted.org/eventemitter3/download/eventemitter3-3.1.0.tgz#090b4d6cdbd645ed10bf750d4b5407942d7ba163"
+  integrity sha1-CQtNbNvWRe0Qv3UNS1QHlC17oWM=
+
 events@~1.1.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/events/-/events-1.1.1.tgz#9ebdb7635ad099c70dcc4c2a1f5004288e8bd924"
@@ -8219,6 +8224,11 @@ util@~0.10.1:
   integrity sha512-0Pm9hTQ3se5ll1XihRic3FDIku70C+iHUdT/W926rSgHV5QgXsYbKZN8MSC3tJtSkhuROzvsQjAaFENRXr+19A==
   dependencies:
     inherits "2.0.3"
+
+utility-types@^3.4.1:
+  version "3.4.1"
+  resolved "http://bnpm.byted.org/utility-types/download/utility-types-3.4.1.tgz#3caa1d207eac873f989bf8c92cf3e8c539045c61"
+  integrity sha1-PKodIH6shz+Ym/jJLPPoxTkEXGE=
 
 uuid@^2.0.1:
   version "2.0.3"
