@@ -30,7 +30,7 @@ export default class TaskManager {
   events: TaskEventsHandler;
   _events: TaskEventsHandler;
   constructor(owner, options) {
-    this.emitter = new EventEmitter();
+    this.emitter = new EventEmitter.EventEmitter();
     this.tasks = {};
     this.owner = owner;
     this.options = options;
