@@ -16,25 +16,23 @@
     "build"
   ],
   "scripts": {
-    "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
+    "build": "tsc --module commonjs && rollup -c rollup.config.ts",
     "start": "npm run build -- -w",
+    "docs": "typedoc --out docs --target es6 --theme minimal --mode file src",
     "lint": "tslint --project . src/**/*.ts",
-    "release": "standard-version",
-    "publish": "npm run docs:publish && node scripts/publish.js",
     "examples": "npm run build && node ./examples/examples.js",
     "commitmsg": "commitlint -E GIT_PARAMS",
     "test": "jest --config .jest.js"
   },
   "engines": {
-    "node": ">=5.10"
+    "node": ">=6.0.0"
   },
   "dependencies": {
     "abab": "^2.0.0",
     "axios": "^0.18.0",
-    "bowser": "^1.9.4",
     "crypto-js": "^3.1.9-1",
     "eventemitter3": "^3.1.0",
-    "tslib": "^1.9.0",
+    "tslib": "^1.9.3",
     "utility-types": "^3.4.1"
   },
   "devDependencies": {
@@ -49,7 +47,6 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-jest": "^23.4.2",
     "babel-preset-env": "^1.7.0",
-    "browserify": "^14.5.0",
     "dotenv": "^4.0.0",
     "envify": "^4.1.0",
     "jest": "^23.5.0",
@@ -62,8 +59,6 @@
     "rollup-plugin-node-resolve": "^4.0.1",
     "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-plugin-typescript2": "^0.19.3",
-    "standard-version": "^4.4.0",
-    "trash-cli": "^1.4.0",
     "ts-jest": "^23.1.3",
     "tslint": "^5.11.0",
     "tslint-config-semistandard": "^7.0.0",
