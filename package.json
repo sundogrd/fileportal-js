@@ -1,6 +1,6 @@
 {
   "name": "@sundogrd/fileportal",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "文件传送门",
   "main": "build/main/index.js",
   "module": "build/module/index.js",
