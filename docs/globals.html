@@ -1143,8 +1143,7 @@ img { max-width: 100%; }
 			</ol>
 			<h2 id="2-api">2. API</h2>
 			<h3 id="2-1-">2.1 初始化</h3>
-			<pre><code class="lang-javascript"><span class="hljs-keyword">const</span> client = <span class="hljs-keyword">new</span> FilePortal(option: FilePortalOption);
-</code></pre>
+			<pre><code class="language-javascript"><span class="hljs-keyword">const</span> client = <span class="hljs-keyword">new</span> FilePortal(option: FilePortalOption);</code></pre>
 			<p><strong>FilePortalOption</strong></p>
 			<table>
 				<thead>
@@ -1156,8 +1155,7 @@ img { max-width: 100%; }
 						<th>des</th>
 					</tr>
 				</thead>
-				<tbody>
-					<tr>
+				<tbody><tr>
 						<td>apikey</td>
 						<td>string</td>
 						<td>&#39;&#39;</td>
@@ -1255,11 +1253,9 @@ img { max-width: 100%; }
 						<td>false</td>
 						<td>是否智能分片</td>
 					</tr>
-				</tbody>
-			</table>
+			</tbody></table>
 			<h3 id="2-2-">2.2 添加任务</h3>
-			<pre><code><span class="hljs-keyword">let</span> task: Task = client.add<span class="hljs-constructor">Task(<span class="hljs-params">file</span>: String|Blob, <span class="hljs-params">option</span>:TaskOption)</span>
-</code></pre><p><strong>TaskOption extends FilePortalOption</strong></p>
+			<pre><code><span class="hljs-keyword">let</span> task: Task = client.add<span class="hljs-constructor">Task(<span class="hljs-params">file</span>: String|Blob, <span class="hljs-params">option</span>:TaskOption)</span> </code></pre><p><strong>TaskOption extends FilePortalOption</strong></p>
 			<table>
 				<thead>
 					<tr>
@@ -1270,8 +1266,7 @@ img { max-width: 100%; }
 						<th>des</th>
 					</tr>
 				</thead>
-				<tbody>
-					<tr>
+				<tbody><tr>
 						<td>name</td>
 						<td>string</td>
 						<td>&#39;task&#39;</td>
@@ -1285,19 +1280,16 @@ img { max-width: 100%; }
 						<td>false</td>
 						<td>自定义额外信息</td>
 					</tr>
-				</tbody>
-			</table>
+			</tbody></table>
 			<h3 id="2-3-">2.3 开始任务</h3>
-			<pre><code class="lang-javascript"><span class="hljs-keyword">let</span> task: Task = client.start(tid: <span class="hljs-built_in">String</span>);
+			<pre><code class="language-javascript"><span class="hljs-keyword">let</span> task: Task = client.start(tid: <span class="hljs-built_in">String</span>);
 
 eg: 
 <span class="hljs-keyword">let</span> {tid} = client.addTask(<span class="hljs-string">'test'</span>, {});
-<span class="hljs-keyword">let</span> task = client.start(tid) 
-</code></pre>
+<span class="hljs-keyword">let</span> task = client.start(tid) </code></pre>
 			<h3 id="2-4-">2.4 事件监听</h3>
 			<h4 id="2-4-1-fileportal-">2.4.1 FilePortal事件监听</h4>
-			<pre><code class="lang-javascript">client.on(evt: <span class="hljs-built_in">String</span>, <span class="hljs-attr">cb</span>: EventCB)
-</code></pre>
+			<pre><code class="language-javascript">client.on(evt: <span class="hljs-built_in">String</span>, <span class="hljs-attr">cb</span>: EventCB)</code></pre>
 			<p><strong>PS: client.on(&#39;uploaded&#39;, cb) 等同于client.uploaded(cb);</strong></p>
 			<p><strong>EVENT</strong></p>
 			<table>
@@ -1308,8 +1300,7 @@ eg:
 						<th>callback</th>
 					</tr>
 				</thead>
-				<tbody>
-					<tr>
+				<tbody><tr>
 						<td>&#39;started&#39;</td>
 						<td>任务开始，只要有一个任务start则会回调</td>
 						<td>(task?: Task, tasks?: Tasks) =&gt; any</td>
@@ -1329,17 +1320,15 @@ eg:
 						<td>只要有一个任务出错则会回调</td>
 						<td>(err?: any, task?: Task, tasks?: Tasks) =&gt; any</td>
 					</tr>
-				</tbody>
-			</table>
+			</tbody></table>
 			<h4 id="2-4-1-task-">2.4.1 Task事件监听</h4>
-			<pre><code class="lang-javascript">client.getTask(tid: <span class="hljs-built_in">String</span>).on(evt: <span class="hljs-built_in">String</span>, <span class="hljs-attr">cb</span>: EventCB)
+			<pre><code class="language-javascript">client.getTask(tid: <span class="hljs-built_in">String</span>).on(evt: <span class="hljs-built_in">String</span>, <span class="hljs-attr">cb</span>: EventCB)
 eg: 
 <span class="hljs-keyword">let</span> {tid} = client.addTask(<span class="hljs-string">'test'</span>, {});
 <span class="hljs-keyword">let</span> task = client.start(tid);
 task.on(<span class="hljs-string">'success'</span>, (res, task, tasks) =&gt; {
     <span class="hljs-comment">// code here</span>
-});
-</code></pre>
+});</code></pre>
 			<p><strong>EVENT</strong></p>
 			<table>
 				<thead>
@@ -1349,8 +1338,7 @@ task.on(<span class="hljs-string">'success'</span>, (res, task, tasks) =&gt; {
 						<th>callback</th>
 					</tr>
 				</thead>
-				<tbody>
-					<tr>
+				<tbody><tr>
 						<td>&#39;preupload&#39;</td>
 						<td>任务之前回调</td>
 						<td>(task?: Task) =&gt; any</td>
@@ -1385,15 +1373,13 @@ task.on(<span class="hljs-string">'success'</span>, (res, task, tasks) =&gt; {
 						<td>任务成功回调</td>
 						<td>(res?: any, task?: Task) =&gt; any</td>
 					</tr>
-				</tbody>
-			</table>
+			</tbody></table>
 			<h3 id="2-5-">2.5 取消任务</h3>
-			<pre><code class="lang-javascript"><span class="hljs-keyword">let</span> task: Task = client.cancel(tid: <span class="hljs-built_in">String</span>, message?: <span class="hljs-built_in">String</span>, cb?: <span class="hljs-function">(<span class="hljs-params">task?: Task</span>) =&gt;</span> any);
+			<pre><code class="language-javascript"><span class="hljs-keyword">let</span> task: Task = client.cancel(tid: <span class="hljs-built_in">String</span>, message?: <span class="hljs-built_in">String</span>, cb?: <span class="hljs-function">(<span class="hljs-params">task?: Task</span>) =&gt;</span> any);
 
 eg: 
 <span class="hljs-keyword">let</span> {tid} = client.addTask(<span class="hljs-string">'test'</span>, {});
-<span class="hljs-keyword">let</span> task = client.cancel(tid) 
-</code></pre>
+<span class="hljs-keyword">let</span> task = client.cancel(tid) </code></pre>
 			<h3 id="2-6-">2.6 上传结果</h3>
 			<p>&emsp;服务器能够接收到的内容如下:</p>
 			<table>
@@ -1404,8 +1390,7 @@ eg:
 						<th>content</th>
 					</tr>
 				</thead>
-				<tbody>
-					<tr>
+				<tbody><tr>
 						<td>option</td>
 						<td>上传对象基本信息</td>
 						<td><code>{size: 文件大小, type: &#39;文件类型&#39;}</code></td>
@@ -1415,21 +1400,20 @@ eg:
 						<td>对于分块上传方式有此信息</td>
 						<td><code>{chunkIndex: 第几块, size: 当前分块大小,  totalChunks: 所有分块数目, file: 目标文件}</code></td>
 					</tr>
-				</tbody>
-			</table>
+			</tbody></table>
 			<h2 id="3-todo">3. TODO</h2>
 			<ul>
-				<li>[ ] 修复各种bug</li>
-				<li>[ ] 增加pause resume</li>
-				<li>[ ] 增加progress控制</li>
-				<li>[ ] 细分分片任务的chunkError 和 taskError级别</li>
-				<li>[ ] 断点续传</li>
-				<li>[ ] 文件id的制定，现在是时间戳，但是这样并不能保证唯一性，md5如果文件太大也不可行</li>
-				<li>[ ] 秒传</li>
-				<li>[ ] 图片预览</li>
-				<li>[ ] 大文件上传支持（现在估计支持得不是很好)</li>
-				<li>[ ] 拖拽上传</li>
-				<li>[ ] 后端</li>
+				<li><input disabled="" type="checkbox"> 修复各种bug</li>
+				<li><input disabled="" type="checkbox"> 增加pause resume</li>
+				<li><input disabled="" type="checkbox"> 增加progress控制</li>
+				<li><input disabled="" type="checkbox"> 细分分片任务的chunkError 和 taskError级别</li>
+				<li><input disabled="" type="checkbox"> 断点续传</li>
+				<li><input disabled="" type="checkbox"> 文件id的制定，现在是时间戳，但是这样并不能保证唯一性，md5如果文件太大也不可行</li>
+				<li><input disabled="" type="checkbox"> 秒传</li>
+				<li><input disabled="" type="checkbox"> 图片预览</li>
+				<li><input disabled="" type="checkbox"> 大文件上传支持（现在估计支持得不是很好)</li>
+				<li><input disabled="" type="checkbox"> 拖拽上传</li>
+				<li><input disabled="" type="checkbox"> 后端</li>
 			</ul>
 		</div>
 		<section class="tsd-panel-group tsd-index-group">
@@ -1553,7 +1537,7 @@ eg:
 				<div class="tsd-signature tsd-kind-icon">Task<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/types.ts#L52">lib/types.ts:52</a></li>
+						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/types.ts#L52">lib/types.ts:52</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-type-declaration">
@@ -1643,7 +1627,7 @@ eg:
 				<div class="tsd-signature tsd-kind-icon">Task<wbr>Manager<wbr>Options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/TaskManager.ts#L20">lib/TaskManager.ts:20</a></li>
+						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/TaskManager.ts#L20">lib/TaskManager.ts:20</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-type-declaration">
@@ -1661,7 +1645,7 @@ eg:
 				<div class="tsd-signature tsd-kind-icon">Tasks<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/types.ts#L67">lib/types.ts:67</a></li>
+						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/types.ts#L67">lib/types.ts:67</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-type-declaration">
@@ -1682,8 +1666,8 @@ eg:
 				<div class="tsd-signature tsd-kind-icon">dataURI<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6c29kaXBvZGk9Imh0dHA6Ly9zb2RpcG9kaS5zb3VyY2Vmb3JnZS5uZXQvRFREL3NvZGlwb2RpLTAuZHRkIgogICB4bWxuczppbmtzY2FwZT0iaHR0cDovL3d3dy5pbmtzY2FwZS5vcmcvbmFtZXNwYWNlcy9pbmtzY2FwZSIKICAgd2lkdGg9IjI0OC4yMjE2OSIKICAgaGVpZ2h0PSI2Ny4wODg0MzIiCiAgIHZpZXdCb3g9IjAgMCAyNDguMjIxNjkgNjcuMDg4NDMyIgogICB2ZXJzaW9uPSIxLjEiCiAgIGlkPSJzdmczNzYwIgogICBzb2RpcG9kaTpkb2NuYW1lPSJmaWxlc3RhY2suc3ZnIgogICBpbmtzY2FwZTp2ZXJzaW9uPSIwLjkyLjEgciI+CiAgPG1ldGFkYXRhCiAgICAgaWQ9Im1ldGFkYXRhMzc2NCI+CiAgICA8cmRmOlJERj4KICAgICAgPGNjOldvcmsKICAgICAgICAgcmRmOmFib3V0PSIiPgogICAgICAgIDxkYzpmb3JtYXQ+aW1hZ2Uvc3ZnK3htbDwvZGM6Zm9ybWF0PgogICAgICAgIDxkYzp0eXBlCiAgICAgICAgICAgcmRmOnJlc291cmNlPSJodHRwOi8vcHVybC5vcmcvZGMvZGNtaXR5cGUvU3RpbGxJbWFnZSIgLz4KICAgICAgICA8ZGM6dGl0bGU+Y29sb3I8L2RjOnRpdGxlPgogICAgICA8L2NjOldvcms+CiAgICA8L3JkZjpSREY+CiAgPC9tZXRhZGF0YT4KICA8c29kaXBvZGk6bmFtZWR2aWV3CiAgICAgcGFnZWNvbG9yPSIjZmZmZmZmIgogICAgIGJvcmRlcmNvbG9yPSIjNjY2NjY2IgogICAgIGJvcmRlcm9wYWNpdHk9IjEiCiAgICAgb2JqZWN0dG9sZXJhbmNlPSIxMCIKICAgICBncmlkdG9sZXJhbmNlPSIxMCIKICAgICBndWlkZXRvbGVyYW5jZT0iMTAiCiAgICAgaW5rc2NhcGU6cGFnZW9wYWNpdHk9IjAiCiAgICAgaW5rc2NhcGU6cGFnZXNoYWRvdz0iMiIKICAgICBpbmtzY2FwZTp3aW5kb3ctd2lkdGg9IjMxOTAiCiAgICAgaW5rc2NhcGU6d2luZG93LWhlaWdodD0iMTc2MiIKICAgICBpZD0ibmFtZWR2aWV3Mzc2MiIKICAgICBzaG93Z3JpZD0iZmFsc2UiCiAgICAgaW5rc2NhcGU6em9vbT0iNC4xNzgxNzY4IgogICAgIGlua3NjYXBlOmN4PSIxMTguMzM2NjgiCiAgICAgaW5rc2NhcGU6Y3k9IjMzLjM0Njc1MyIKICAgICBpbmtzY2FwZTp3aW5kb3cteD0iMCIKICAgICBpbmtzY2FwZTp3aW5kb3cteT0iMjgiCiAgICAgaW5rc2NhcGU6d2luZG93LW1heGltaXplZD0iMCIKICAgICBpbmtzY2FwZTpjdXJyZW50LWxheWVyPSJzdmczNzYwIgogICAgIGlua3NjYXBlOmxvY2tndWlkZXM9ImZhbHNlIiAvPgogIDwhLS0gR2VuZXJhdG9yOiBTa2V0Y2ggNDIgKDM2NzgxKSAtIGh0dHA6Ly93d3cuYm9oZW1pYW5jb2RpbmcuY29tL3NrZXRjaCAtLT4KICA8dGl0bGUKICAgICBpZD0idGl0bGUzNzQyIj5jb2xvcjwvdGl0bGU+CiAgPGRlc2MKICAgICBpZD0iZGVzYzM3NDQiPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogIDxkZWZzCiAgICAgaWQ9ImRlZnMzNzQ2IiAvPgogIDxnCiAgICAgaWQ9IlBhZ2UtMSIKICAgICBzdHlsZT0iZmlsbDpub25lO2ZpbGwtcnVsZTpldmVub2RkO3N0cm9rZTpub25lO3N0cm9rZS13aWR0aDoxIgogICAgIHRyYW5zZm9ybT0ic2NhbGUoMS4zOTkzODYyKSI+CiAgICA8ZwogICAgICAgaWQ9ImNvbG9yIj4KICAgICAgPHBhdGgKICAgICAgICAgZD0iTSAzNy40OTg4NzMsMzIuOTU5NjY1IFYgNC40OTQ0OTk3IEggNC40OTk4NjQ4IFYgNDMuNDQ2ODMxIEggMjYuOTk5MTg5IFYgNDcuOTQxMzMgSCA0MS45OTg3MzggViAzMi45NTk2NjUgWiBNIDAsMCBIIDQxLjk5ODczOCBWIDQ3Ljk0MTMzIEggMCBaIE0gMjkuOTk5MDk5LDM1Ljk1NTk5OCBIIDQxLjk5ODczOCBMIDI5Ljk5OTA5OSw0Ny45NDEzMyBaIE0gMTMuNDk5NTk0LDEzLjQ4MzQ5OSBoIDE0Ljk5OTU1IHYgNC40OTQ1IGggLTE0Ljk5OTU1IHogbSAwLDcuNDkwODMzIGggMTEuOTk5NjQgdiA0LjQ5NDUgaCAtMTEuOTk5NjQgeiBtIDAsNy40OTA4MzMgaCA0LjQ5OTg2NSB2IDQuNDk0NSBoIC00LjQ5OTg2NSB6IgogICAgICAgICBpZD0iUmVjdGFuZ2xlLTM1NiIKICAgICAgICAgaW5rc2NhcGU6Y29ubmVjdG9yLWN1cnZhdHVyZT0iMCIKICAgICAgICAgc3R5bGU9ImZpbGw6I2VmNDkyNSIgLz4KICAgIDwvZz4KICA8L2c+CiAgPHRleHQKICAgICB4bWw6c3BhY2U9InByZXNlcnZlIgogICAgIHN0eWxlPSJmb250LXN0eWxlOm5vcm1hbDtmb250LXZhcmlhbnQ6bm9ybWFsO2ZvbnQtd2VpZ2h0Om5vcm1hbDtmb250LXN0cmV0Y2g6bm9ybWFsO2ZvbnQtc2l6ZTozMy4zMzMzMzIwNnB4O2xpbmUtaGVpZ2h0OjEuMjU7Zm9udC1mYW1pbHk6TW9udHNlcnJhdDstaW5rc2NhcGUtZm9udC1zcGVjaWZpY2F0aW9uOidNb250c2VycmF0LCBOb3JtYWwnO2ZvbnQtdmFyaWFudC1saWdhdHVyZXM6bm9ybWFsO2ZvbnQtdmFyaWFudC1jYXBzOm5vcm1hbDtmb250LXZhcmlhbnQtbnVtZXJpYzpub3JtYWw7Zm9udC1mZWF0dXJlLXNldHRpbmdzOm5vcm1hbDt0ZXh0LWFsaWduOnN0YXJ0O2xldHRlci1zcGFjaW5nOjBweDt3b3JkLXNwYWNpbmc6MHB4O3dyaXRpbmctbW9kZTpsci10Yjt0ZXh0LWFuY2hvcjpzdGFydDtmaWxsOiMwMDAwMDA7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmUiCiAgICAgeD0iNzQuMDE5MjI2IgogICAgIHk9IjQ2LjM4MTEyNiIKICAgICBpZD0idGV4dDM3MDAiPjx0c3BhbgogICAgICAgc29kaXBvZGk6cm9sZT0ibGluZSIKICAgICAgIGlkPSJ0c3BhbjM3MDIiCiAgICAgICB4PSI3NC4wMTkyMjYiCiAgICAgICB5PSI0Ni4zODExMjYiCiAgICAgICBzdHlsZT0iZm9udC1zdHlsZTpub3JtYWw7Zm9udC12YXJpYW50Om5vcm1hbDtmb250LXdlaWdodDpub3JtYWw7Zm9udC1zdHJldGNoOm5vcm1hbDtmb250LXNpemU6MzMuMzMzMzMyMDZweDtmb250LWZhbWlseTpNb250c2VycmF0Oy1pbmtzY2FwZS1mb250LXNwZWNpZmljYXRpb246J01vbnRzZXJyYXQsIE5vcm1hbCc7Zm9udC12YXJpYW50LWxpZ2F0dXJlczpub3JtYWw7Zm9udC12YXJpYW50LWNhcHM6bm9ybWFsO2ZvbnQtdmFyaWFudC1udW1lcmljOm5vcm1hbDtmb250LWZlYXR1cmUtc2V0dGluZ3M6bm9ybWFsO3RleHQtYWxpZ246c3RhcnQ7d3JpdGluZy1tb2RlOmxyLXRiO3RleHQtYW5jaG9yOnN0YXJ0Ij5maWxlc3RhY2stanM8L3RzcGFuPjwvdGV4dD4KPC9zdmc+Cg&#x3D;&#x3D;"</span><span class="tsd-signature-symbol"> =&nbsp;&#x60;data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6c29kaXBvZGk9Imh0dHA6Ly9zb2RpcG9kaS5zb3VyY2Vmb3JnZS5uZXQvRFREL3NvZGlwb2RpLTAuZHRkIgogICB4bWxuczppbmtzY2FwZT0iaHR0cDovL3d3dy5pbmtzY2FwZS5vcmcvbmFtZXNwYWNlcy9pbmtzY2FwZSIKICAgd2lkdGg9IjI0OC4yMjE2OSIKICAgaGVpZ2h0PSI2Ny4wODg0MzIiCiAgIHZpZXdCb3g9IjAgMCAyNDguMjIxNjkgNjcuMDg4NDMyIgogICB2ZXJzaW9uPSIxLjEiCiAgIGlkPSJzdmczNzYwIgogICBzb2RpcG9kaTpkb2NuYW1lPSJmaWxlc3RhY2suc3ZnIgogICBpbmtzY2FwZTp2ZXJzaW9uPSIwLjkyLjEgciI+CiAgPG1ldGFkYXRhCiAgICAgaWQ9Im1ldGFkYXRhMzc2NCI+CiAgICA8cmRmOlJERj4KICAgICAgPGNjOldvcmsKICAgICAgICAgcmRmOmFib3V0PSIiPgogICAgICAgIDxkYzpmb3JtYXQ+aW1hZ2Uvc3ZnK3htbDwvZGM6Zm9ybWF0PgogICAgICAgIDxkYzp0eXBlCiAgICAgICAgICAgcmRmOnJlc291cmNlPSJodHRwOi8vcHVybC5vcmcvZGMvZGNtaXR5cGUvU3RpbGxJbWFnZSIgLz4KICAgICAgICA8ZGM6dGl0bGU+Y29sb3I8L2RjOnRpdGxlPgogICAgICA8L2NjOldvcms+CiAgICA8L3JkZjpSREY+CiAgPC9tZXRhZGF0YT4KICA8c29kaXBvZGk6bmFtZWR2aWV3CiAgICAgcGFnZWNvbG9yPSIjZmZmZmZmIgogICAgIGJvcmRlcmNvbG9yPSIjNjY2NjY2IgogICAgIGJvcmRlcm9wYWNpdHk9IjEiCiAgICAgb2JqZWN0dG9sZXJhbmNlPSIxMCIKICAgICBncmlkdG9sZXJhbmNlPSIxMCIKICAgICBndWlkZXRvbGVyYW5jZT0iMTAiCiAgICAgaW5rc2NhcGU6cGFnZW9wYWNpdHk9IjAiCiAgICAgaW5rc2NhcGU6cGFnZXNoYWRvdz0iMiIKICAgICBpbmtzY2FwZTp3aW5kb3ctd2lkdGg9IjMxOTAiCiAgICAgaW5rc2NhcGU6d2luZG93LWhlaWdodD0iMTc2MiIKICAgICBpZD0ibmFtZWR2aWV3Mzc2MiIKICAgICBzaG93Z3JpZD0iZmFsc2UiCiAgICAgaW5rc2NhcGU6em9vbT0iNC4xNzgxNzY4IgogICAgIGlua3NjYXBlOmN4PSIxMTguMzM2NjgiCiAgICAgaW5rc2NhcGU6Y3k9IjMzLjM0Njc1MyIKICAgICBpbmtzY2FwZTp3aW5kb3cteD0iMCIKICAgICBpbmtzY2FwZTp3aW5kb3cteT0iMjgiCiAgICAgaW5rc2NhcGU6d2luZG93LW1heGltaXplZD0iMCIKICAgICBpbmtzY2FwZTpjdXJyZW50LWxheWVyPSJzdmczNzYwIgogICAgIGlua3NjYXBlOmxvY2tndWlkZXM9ImZhbHNlIiAvPgogIDwhLS0gR2VuZXJhdG9yOiBTa2V0Y2ggNDIgKDM2NzgxKSAtIGh0dHA6Ly93d3cuYm9oZW1pYW5jb2RpbmcuY29tL3NrZXRjaCAtLT4KICA8dGl0bGUKICAgICBpZD0idGl0bGUzNzQyIj5jb2xvcjwvdGl0bGU+CiAgPGRlc2MKICAgICBpZD0iZGVzYzM3NDQiPkNyZWF0ZWQgd2l0aCBTa2V0Y2guPC9kZXNjPgogIDxkZWZzCiAgICAgaWQ9ImRlZnMzNzQ2IiAvPgogIDxnCiAgICAgaWQ9IlBhZ2UtMSIKICAgICBzdHlsZT0iZmlsbDpub25lO2ZpbGwtcnVsZTpldmVub2RkO3N0cm9rZTpub25lO3N0cm9rZS13aWR0aDoxIgogICAgIHRyYW5zZm9ybT0ic2NhbGUoMS4zOTkzODYyKSI+CiAgICA8ZwogICAgICAgaWQ9ImNvbG9yIj4KICAgICAgPHBhdGgKICAgICAgICAgZD0iTSAzNy40OTg4NzMsMzIuOTU5NjY1IFYgNC40OTQ0OTk3IEggNC40OTk4NjQ4IFYgNDMuNDQ2ODMxIEggMjYuOTk5MTg5IFYgNDcuOTQxMzMgSCA0MS45OTg3MzggViAzMi45NTk2NjUgWiBNIDAsMCBIIDQxLjk5ODczOCBWIDQ3Ljk0MTMzIEggMCBaIE0gMjkuOTk5MDk5LDM1Ljk1NTk5OCBIIDQxLjk5ODczOCBMIDI5Ljk5OTA5OSw0Ny45NDEzMyBaIE0gMTMuNDk5NTk0LDEzLjQ4MzQ5OSBoIDE0Ljk5OTU1IHYgNC40OTQ1IGggLTE0Ljk5OTU1IHogbSAwLDcuNDkwODMzIGggMTEuOTk5NjQgdiA0LjQ5NDUgaCAtMTEuOTk5NjQgeiBtIDAsNy40OTA4MzMgaCA0LjQ5OTg2NSB2IDQuNDk0NSBoIC00LjQ5OTg2NSB6IgogICAgICAgICBpZD0iUmVjdGFuZ2xlLTM1NiIKICAgICAgICAgaW5rc2NhcGU6Y29ubmVjdG9yLWN1cnZhdHVyZT0iMCIKICAgICAgICAgc3R5bGU9ImZpbGw6I2VmNDkyNSIgLz4KICAgIDwvZz4KICA8L2c+CiAgPHRleHQKICAgICB4bWw6c3BhY2U9InByZXNlcnZlIgogICAgIHN0eWxlPSJmb250LXN0eWxlOm5vcm1hbDtmb250LXZhcmlhbnQ6bm9ybWFsO2ZvbnQtd2VpZ2h0Om5vcm1hbDtmb250LXN0cmV0Y2g6bm9ybWFsO2ZvbnQtc2l6ZTozMy4zMzMzMzIwNnB4O2xpbmUtaGVpZ2h0OjEuMjU7Zm9udC1mYW1pbHk6TW9udHNlcnJhdDstaW5rc2NhcGUtZm9udC1zcGVjaWZpY2F0aW9uOidNb250c2VycmF0LCBOb3JtYWwnO2ZvbnQtdmFyaWFudC1saWdhdHVyZXM6bm9ybWFsO2ZvbnQtdmFyaWFudC1jYXBzOm5vcm1hbDtmb250LXZhcmlhbnQtbnVtZXJpYzpub3JtYWw7Zm9udC1mZWF0dXJlLXNldHRpbmdzOm5vcm1hbDt0ZXh0LWFsaWduOnN0YXJ0O2xldHRlci1zcGFjaW5nOjBweDt3b3JkLXNwYWNpbmc6MHB4O3dyaXRpbmctbW9kZTpsci10Yjt0ZXh0LWFuY2hvcjpzdGFydDtmaWxsOiMwMDAwMDA7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmUiCiAgICAgeD0iNzQuMDE5MjI2IgogICAgIHk9IjQ2LjM4MTEyNiIKICAgICBpZD0idGV4dDM3MDAiPjx0c3BhbgogICAgICAgc29kaXBvZGk6cm9sZT0ibGluZSIKICAgICAgIGlkPSJ0c3BhbjM3MDIiCiAgICAgICB4PSI3NC4wMTkyMjYiCiAgICAgICB5PSI0Ni4zODExMjYiCiAgICAgICBzdHlsZT0iZm9udC1zdHlsZTpub3JtYWw7Zm9udC12YXJpYW50Om5vcm1hbDtmb250LXdlaWdodDpub3JtYWw7Zm9udC1zdHJldGNoOm5vcm1hbDtmb250LXNpemU6MzMuMzMzMzMyMDZweDtmb250LWZhbWlseTpNb250c2VycmF0Oy1pbmtzY2FwZS1mb250LXNwZWNpZmljYXRpb246J01vbnRzZXJyYXQsIE5vcm1hbCc7Zm9udC12YXJpYW50LWxpZ2F0dXJlczpub3JtYWw7Zm9udC12YXJpYW50LWNhcHM6bm9ybWFsO2ZvbnQtdmFyaWFudC1udW1lcmljOm5vcm1hbDtmb250LWZlYXR1cmUtc2V0dGluZ3M6bm9ybWFsO3RleHQtYWxpZ246c3RhcnQ7d3JpdGluZy1tb2RlOmxyLXRiO3RleHQtYW5jaG9yOnN0YXJ0Ij5maWxlc3RhY2stanM8L3RzcGFuPjwvdGV4dD4KPC9zdmc+Cg&#x3D;&#x3D;&#x60;</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/__test__/core.test.ts#L1">lib/__test__/core.test.ts:1</a></li>
-						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/__test__/file.test.ts#L1">utils/__test__/file.test.ts:1</a></li>
+						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/__test__/core.test.ts#L1">lib/__test__/core.test.ts:1</a></li>
+						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/__test__/file.test.ts#L1">utils/__test__/file.test.ts:1</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1693,7 +1677,7 @@ eg:
 				<div class="tsd-signature tsd-kind-icon">default<wbr>Upload<wbr>Config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/upload/upload.ts#L17">lib/api/upload/upload.ts:17</a></li>
+						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/upload/upload.ts#L17">lib/api/upload/upload.ts:17</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-type-declaration">
@@ -1708,7 +1692,7 @@ eg:
 				<div class="tsd-signature tsd-kind-icon">simple<wbr>Upload<span class="tsd-signature-symbol">:</span> <a href="" class="tsd-signature-type">upload</a><span class="tsd-signature-symbol"> =&nbsp;upload</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/upload/upload.ts#L41">lib/api/upload/upload.ts:41</a></li>
+						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/upload/upload.ts#L41">lib/api/upload/upload.ts:41</a></li>
 					</ul>
 				</aside>
 			</section>
@@ -1725,7 +1709,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/file.ts#L33">utils/file.ts:33</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/file.ts#L33">utils/file.ts:33</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1761,7 +1745,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/blob2Buffer.ts#L3">utils/blob2Buffer.ts:3</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/blob2Buffer.ts#L3">utils/blob2Buffer.ts:3</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1784,7 +1768,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/file.ts#L134">utils/file.ts:134</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/file.ts#L134">utils/file.ts:134</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1812,7 +1796,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/request.ts#L6">lib/api/request.ts:6</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/request.ts#L6">lib/api/request.ts:6</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-returns-title">Returns <a href="interfaces/requestinstance.html" class="tsd-signature-type">RequestInstance</a></h4>
@@ -1829,7 +1813,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/helper.ts#L15">utils/helper.ts:15</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/helper.ts#L15">utils/helper.ts:15</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1855,7 +1839,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/request.ts#L28">lib/api/request.ts:28</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/request.ts#L28">lib/api/request.ts:28</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1878,7 +1862,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/file.ts#L119">utils/file.ts:119</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/file.ts#L119">utils/file.ts:119</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -1906,7 +1890,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/md5.ts#L36">utils/md5.ts:36</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/md5.ts#L36">utils/md5.ts:36</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1950,7 +1934,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/helper.ts#L3">utils/helper.ts:3</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/helper.ts#L3">utils/helper.ts:3</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1973,7 +1957,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/file.ts#L22">utils/file.ts:22</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/file.ts#L22">utils/file.ts:22</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2001,7 +1985,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/file.ts#L11">utils/file.ts:11</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/file.ts#L11">utils/file.ts:11</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2029,7 +2013,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/request.ts#L21">lib/api/request.ts:21</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/request.ts#L21">lib/api/request.ts:21</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2055,7 +2039,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/helper.ts#L11">utils/helper.ts:11</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/helper.ts#L11">utils/helper.ts:11</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
@@ -2072,7 +2056,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/md5.ts#L3">utils/md5.ts:3</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/md5.ts#L3">utils/md5.ts:3</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2119,7 +2103,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/file.ts#L85">utils/file.ts:85</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/file.ts#L85">utils/file.ts:85</a></li>
 							</ul>
 						</aside>
 						<div class="tsd-comment tsd-typography">
@@ -2152,7 +2136,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/request.ts#L32">lib/api/request.ts:32</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/request.ts#L32">lib/api/request.ts:32</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2181,7 +2165,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/utils/helper.ts#L7">utils/helper.ts:7</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/utils/helper.ts#L7">utils/helper.ts:7</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2204,7 +2188,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/upload/upload.ts#L19">lib/api/upload/upload.ts:19</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/upload/upload.ts#L19">lib/api/upload/upload.ts:19</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2233,7 +2217,7 @@ eg:
 					<li class="tsd-description">
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/upload/upload.ts#L43">lib/api/upload/upload.ts:43</a></li>
+								<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/upload/upload.ts#L43">lib/api/upload/upload.ts:43</a></li>
 							</ul>
 						</aside>
 						<h4 class="tsd-parameters-title">Parameters</h4>
@@ -2258,7 +2242,7 @@ eg:
 				<div class="tsd-signature tsd-kind-icon">config<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/config/request.ts#L3">config/request.ts:3</a></li>
+						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/config/request.ts#L3">config/request.ts:3</a></li>
 					</ul>
 				</aside>
 				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
@@ -2267,7 +2251,7 @@ eg:
 					<div class="tsd-signature tsd-kind-icon">max<wbr>Content<wbr>Length<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;200000</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/config/request.ts#L10">config/request.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/config/request.ts#L10">config/request.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2277,7 +2261,7 @@ eg:
 					<div class="tsd-signature tsd-kind-icon">timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;10000</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/config/request.ts#L4">config/request.ts:4</a></li>
+							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/config/request.ts#L4">config/request.ts:4</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2287,7 +2271,7 @@ eg:
 					<div class="tsd-signature tsd-kind-icon">with<wbr>Credentials<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> =&nbsp;false</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/config/request.ts#L5">config/request.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/config/request.ts#L5">config/request.ts:5</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2297,7 +2281,7 @@ eg:
 					<div class="tsd-signature tsd-kind-icon">xsrf<wbr>Cookie<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;XSRF-FILEPORTAL-TOKEN&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/config/request.ts#L7">config/request.ts:7</a></li>
+							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/config/request.ts#L7">config/request.ts:7</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2307,7 +2291,7 @@ eg:
 					<div class="tsd-signature tsd-kind-icon">xsrf<wbr>Header<wbr>Name<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> =&nbsp;&quot;X-XSRF-FILEPORTAL-TOKEN&quot;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/config/request.ts#L9">config/request.ts:9</a></li>
+							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/config/request.ts#L9">config/request.ts:9</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2318,7 +2302,7 @@ eg:
 				<div class="tsd-signature tsd-kind-icon">statuses<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 				<aside class="tsd-sources">
 					<ul>
-						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/upload/upload.ts#L9">lib/api/upload/upload.ts:9</a></li>
+						<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/upload/upload.ts#L9">lib/api/upload/upload.ts:9</a></li>
 					</ul>
 				</aside>
 				<div class="tsd-comment tsd-typography">
@@ -2329,7 +2313,7 @@ eg:
 					<div class="tsd-signature tsd-kind-icon">DONE<span class="tsd-signature-symbol">:</span> <a href="enums/status.html" class="tsd-signature-type">Status</a><span class="tsd-signature-symbol"> =&nbsp;Status.DONE</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/upload/upload.ts#L12">lib/api/upload/upload.ts:12</a></li>
+							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/upload/upload.ts#L12">lib/api/upload/upload.ts:12</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2339,7 +2323,7 @@ eg:
 					<div class="tsd-signature tsd-kind-icon">FAILED<span class="tsd-signature-symbol">:</span> <a href="enums/status.html" class="tsd-signature-type">Status</a><span class="tsd-signature-symbol"> =&nbsp;Status.FAILED</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/upload/upload.ts#L13">lib/api/upload/upload.ts:13</a></li>
+							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/upload/upload.ts#L13">lib/api/upload/upload.ts:13</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2349,7 +2333,7 @@ eg:
 					<div class="tsd-signature tsd-kind-icon">INIT<span class="tsd-signature-symbol">:</span> <a href="enums/status.html" class="tsd-signature-type">Status</a><span class="tsd-signature-symbol"> =&nbsp;Status.INIT</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/upload/upload.ts#L10">lib/api/upload/upload.ts:10</a></li>
+							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/upload/upload.ts#L10">lib/api/upload/upload.ts:10</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2359,7 +2343,7 @@ eg:
 					<div class="tsd-signature tsd-kind-icon">PAUSED<span class="tsd-signature-symbol">:</span> <a href="enums/status.html" class="tsd-signature-type">Status</a><span class="tsd-signature-symbol"> =&nbsp;Status.PAUSED</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/upload/upload.ts#L14">lib/api/upload/upload.ts:14</a></li>
+							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/upload/upload.ts#L14">lib/api/upload/upload.ts:14</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -2369,7 +2353,7 @@ eg:
 					<div class="tsd-signature tsd-kind-icon">RUNNING<span class="tsd-signature-symbol">:</span> <a href="enums/status.html" class="tsd-signature-type">Status</a><span class="tsd-signature-symbol"> =&nbsp;Status.RUNNING</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/5e2367b/src/lib/api/upload/upload.ts#L11">lib/api/upload/upload.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/sundogrd/fileportal-js/blob/b9dc2ee/src/lib/api/upload/upload.ts#L11">lib/api/upload/upload.ts:11</a></li>
 						</ul>
 					</aside>
 				</section>
