@@ -1,4 +1,4 @@
-import { EventEmitter } from 'eventemitter3';
+import * as EventEmitter from 'eventemitter3';
 import BaseTask from './task/BaseTask';
 import FilePortal from './core';
 import { CancelToken, Canceler, AxiosResponse, AxiosError } from 'axios';
@@ -23,7 +23,7 @@ export type TaskManagerOptions = {
 
 // 负责多任务管理
 export default class TaskManager {
-  emitter;
+  emitter: EventEmitter;
   tasks: Tasks;
   owner: FilePortal;
   options: TaskManagerOptions;

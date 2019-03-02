@@ -1,5 +1,5 @@
 import { State, UploadOptions, UploadConfig, Context, Status, UploadEvent } from './types';
-import { getFile, closeFile, getPart } from '../../../utils/file';
+import { getFile, closeFile } from '../../../utils/file';
 import { createAxios, getCancelHandler } from '../request';
 import { Canceler } from 'axios';
 import { sleeper } from '../../../utils/helper';
