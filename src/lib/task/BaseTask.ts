@@ -1,13 +1,16 @@
 import { ETaskType } from './type';
 import { upload } from '../api/upload/upload';
-import { TaskOption, TaskEventsHandler, Task } from '../types';
+import { TaskOption, Task, ETaskStatus, ETaskEvents } from '../types';
 import { UploadEvent } from '../api/upload/types';
 import { Canceler } from 'axios';
+import EventEmitter from '../EventEmitter';
 
 /**
  * 上传任务
  */
-abstract class BaseTask {
+class BaseTask {
+  protected _tId: string;
+  protected _name: string;
   protected _file: File;
   protected _retry: number = 0;// 已重试次数
   protected _createDate: Date;// 创建时间
@@ -19,11 +22,68 @@ abstract class BaseTask {
   protected _isFinish: boolean = false;// 是否结束
   protected _result: Object;
   protected _error: any;
-  protected _type: ETaskType;
-
-  constructor(file: File) {
+  protected _type: ETaskType;   // 任务类型
+  protected _eventEmitter: EventEmitter; // 任务事件触发器
+  protected _status: ETaskStatus; // 任务当前状态
+  protected _ext: Object;   // 用户额外参数
+  protected _options: TaskOption;
+  protected _cancelHanlder: Canceler | Canceler[];
+  constructor(file: File, option: TaskOption) {
     this._file = file;
     this._createDate = new Date();
+    this._eventEmitter = new EventEmitter();
+    this._status = ETaskStatus.PREUPLOAD;
+    this._options = option;
+    // ID先按照时间戳的格式来，以后考虑md5
+    this._tId = btoa(`${Date.now()}${Math.random().toFixed(4)}`);
+  }
+
+  public get cancelHandler() {
+    return this._cancelHanlder;
+  }
+
+  public set cancelHandler(handler: Canceler | Canceler[]) {
+    this._cancelHanlder = handler;
+  }
+
+  public get option() {
+    return this._options;
+  }
+
+  public set option(op: TaskOption) {
+    this._options = op;
+  }
+
+  public get id() {
+    return this._tId;
+  }
+
+  public get name() {
+    return this._name;
+  }
+
+  public get ext() {
+    return this._ext;
+  }
+
+  public set ext(obj: Object) {
+    this._ext = obj;
+  }
+
+  public get status() {
+    return this._status;
+  }
+
+  public set status(s: ETaskStatus) {
+    this._status = s;
+  }
+
+  public set name(nm: string) {
+    this._name = nm;
+  }
+
+  public get eventEmitter() {
+    return this._eventEmitter;
   }
 
   public get file(): File {
@@ -122,9 +182,21 @@ abstract class BaseTask {
     this._isFinish = value;
   }
 
-  upload(task: Task, cancelHandler?: Canceler | Canceler[], eventCB?: TaskEventsHandler): any {
+  upload(cancelHandler?: Canceler | Canceler[]): any {
     // code here
     return;
+  }
+
+  on(evt: string, callback: (...args: any[]) => any): BaseTask {
+    const events = [ETaskEvents.CANCEL as string, ETaskEvents.PAUSE, ETaskEvents.RESUME, ETaskEvents.SUCCESS, ETaskEvents.FAIL, ETaskEvents.RETRY, ETaskEvents.PREUPLOAD];
+    if (Array.isArray(events)) {
+      if (events.findIndex(e => evt === e) >= 0) {
+        this.eventEmitter.on(`${evt}`, callback, this);
+      } else {
+        console.error('事件名称无效');
+      }
+    }
+    return this;
   }
 }
 

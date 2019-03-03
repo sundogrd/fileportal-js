@@ -36,7 +36,7 @@ describe('upload test', () => {
     let tasks = client.addTask(dataURI, {
       token: 'test token',
       apiKey: 'test key',
-      // host: 'http://0.0.0.0:9991/upload',
+      host: 'http://127.0.0.1:9991/upload',
     });
     let { id } = tasks;
     client.start(id);

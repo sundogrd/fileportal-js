@@ -1,10 +1,9 @@
 // import * as EventEmitter from 'eventemitter3';
 import BaseTask from './task/BaseTask';
-import FilePortal from './core';
 import { CancelToken, Canceler, AxiosResponse, AxiosError } from 'axios';
-import { Tasks, Task, ETaskStatus, TaskOption, TaskBaseCB, ETaskEvents, TaskEventsHandler } from './types';
+import { Tasks, Task, ETaskStatus, TaskOption, TaskBaseCB, ETaskEvents, EFilePortalEvents } from './types';
 import { ETaskType } from './task/type';
-import { noop } from '../utils/helper';
+import EventEmitter from './EventEmitter';
 
 export enum ETaskManagerEvents {
   TASK_ADDED = 'TASK_ADDED',
@@ -13,7 +12,7 @@ export enum ETaskManagerEvents {
   TASK_SUCCEED = 'TASK_SUCCEED',
   TASK_FAILED = 'TASK_FAILED',
   TASK_PAUSE = 'TASK_PAUSE',
-
+  TASK_CANCEL = 'TASK_CANCEL',
   ALL_TASK_COMPLETED = 'ALL_TASK_COMPLETED',
 }
 
@@ -23,113 +22,54 @@ export type TaskManagerOptions = {
 
 // 负责多任务管理
 export default class TaskManager {
-  // emitter;
   tasks: Tasks;
-  owner: FilePortal;
-  options: TaskManagerOptions;
-  events: TaskEventsHandler;
-  _events: TaskEventsHandler;
-  constructor(owner, options) {
-    // this.emitter = new EventEmitter();
+  eventEmitter: EventEmitter;
+  constructor() {
     this.tasks = {};
-    this.owner = owner;
-    this.options = options;
-    this.events = this._events = {
-      preupload: noop,
-      success: noop,
-      failed: noop,
-      pause: noop,
-      cancel: noop,
-      retry: noop,
-      resume: noop,
-    };
   }
-  private _upload(task: Task, cancelHandler: Canceler | Canceler[]) {
-    let file = task.payload;
-    let taskEventsHandler: TaskEventsHandler = {
-      success: (res, task, tasks) => {
-        task.state = ETaskStatus.COMPLETED;
-        // 回调uploaded
-        this.owner.events.uploaded(res, task, this.tasks);
-        // 判断所有任务是否完成
-        let isComplete: boolean = Object.keys(this.tasks).every((taskId: string) => {
-          return this.tasks[taskId].state === ETaskStatus.COMPLETED;
-        });
-        if (isComplete) {
-          this.owner.events.complete(this.tasks);
-        }
-      },
-      failed: (err, task, tasks) => {
-        task.state = ETaskStatus.FAILED;
-        this.owner.events.error(err, task, this.tasks);
-      },
-    };
-    let baseEvnts = ['pause', 'resume', 'cancel', 'preupload'].reduce((evts, name) => {
-      evts[name] = this.events[name].bind(this, task);
-      return evts;
-    }, {});
-    this._events = {
-      success: (res) => {
-        this.events.success.call(this, res, task);
-        taskEventsHandler.success.call(this, res, task, this.tasks);
-      },
-      failed: (err) => {
-        this.events.failed.call(this, err, task);
-        taskEventsHandler.failed.call(this, err, task, this.tasks);
-      },
-      retry: (fileOrBlock) => {
-        this.events.retry.call(this, fileOrBlock, task);
-      },
-      ...baseEvnts,
-    };
-    return task.task.upload(task, cancelHandler, this._events);
+  private _upload(task: BaseTask, cancelHandler: Canceler | Canceler[]) {
+    return task.upload(cancelHandler);
   }
 
   /**
    *  添加任务
    * @param {BaseTask} task 任务
-   * @param {AddOptions} options  配置
-   * @param {string} [name] 任务名称
-   * @returns {Task}
+   * @returns {Task} 任务对象
    * @memberof TaskManager
    */
-  addTask(task: BaseTask, options: TaskOption): Task {
-    // this.tasks[task.id] = task;
-    // let md5 = await getMD5(task.file);
-    let self = this;
-    let id = btoa(`${Date.now()}${Math.random().toFixed(4)}`);
-    let tTask: Task = {
-      id: id,
-      name: options.name || `task${id}`,
-      state: ETaskStatus.PREUPLOAD,
-      createAt: task.createDate,
-      ext: options.extra || {},
-      payload: task.file,
-      token: options.token,
-      config: {
-        ...this.options,
-        ...options,
-      },
-      manager: this,
-      on: self.on.bind(self),
-      task: task,
-    };
-    this.tasks[id] = tTask;
-    return tTask;
+  addTask(task: BaseTask): BaseTask {
+    this.tasks[task.id] = task;
+    this.registCallback(task);
+    return task;
+  }
+  // 为FilePortal注册回调
+  registCallback(task) {
+    task.eventEmitter.on(ETaskEvents.SUCCESS, (ctx, evt, task) => {
+      this.eventEmitter.emit(EFilePortalEvents.UPLOADED, evt, task, ctx.getTasks());
+      let isComplete: boolean = Object.keys(this.tasks).every((taskId: string) => {
+        return this.tasks[taskId].status === ETaskStatus.COMPLETED;
+      });
+      if (isComplete) {
+        this.eventEmitter.emit(EFilePortalEvents.COMPLETED, ctx.getTasks());
+      }
+    }, this);
+    task.eventEmitter.on(ETaskEvents.FAIL, (ctx, evt, task) => {
+      this.eventEmitter.emit(EFilePortalEvents.ERROR, evt, task, ctx.getTasks());
+    }, this);
   }
   getTasks(): Tasks {
     return this.tasks;
   }
-  getTask(tid: string): Task {
+  getTask(tid: string): BaseTask {
     return this.tasks[tid];
   }
-  start(taskId: string): Task {
+  start(taskId: string): BaseTask {
     let task = this.tasks[taskId];
     let cancelHandler;
-    task.state = ETaskStatus.UPLOADING;
-    if (task.task.type === ETaskType.SIMPLE) {
+    task.status = ETaskStatus.UPLOADING;
+    if (task.type === ETaskType.SIMPLE) {
       cancelHandler = this._upload(task, cancelHandler);
-    } else if (task.task.type === ETaskType.CHUNK) {
+    } else if (task.type === ETaskType.CHUNK) {
       cancelHandler = [];
       this._upload(task, cancelHandler);
     }
@@ -147,7 +87,7 @@ export default class TaskManager {
     setTimeout(() => {
       let task = this.tasks[taskId];
       let canceler: Canceler | Canceler[] = task.cancelHandler;
-      task.state = ETaskStatus.CANCELED;
+      // task. = ETaskStatus.CANCELED;
       if (Array.isArray(canceler)) {
         if (canceler.length === 0) {
           console.log('所有的请求都已被处理，不能取消了');
@@ -158,17 +98,11 @@ export default class TaskManager {
         canceler(message);
       }
       if (cb) {
-        this.events.cancel = cb;
+        // this.events.cancel = cb;
       }
-      this.events.cancel.call(this);
+      // this.events.cancel.call(this);
+      task.status = ETaskStatus.CANCELED;
       return;
     }, 0);
-  }
-
-  on(evt: string, cb: TaskBaseCB) {
-    const events = [ETaskEvents.CANCEL as string, ETaskEvents.PAUSE, ETaskEvents.RESUME, ETaskEvents.SUCCESS, ETaskEvents.FAIL, ETaskEvents.RETRY, ETaskEvents.PREUPLOAD];
-    if (events.includes(evt)) {
-      this.events[evt] = cb;
-    }
   }
 }

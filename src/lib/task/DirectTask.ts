@@ -1,45 +1,49 @@
 import BaseTask from './BaseTask';
 import { ETaskType } from './type';
 import { upload } from '../api/upload/upload';
-import { TaskOption, TaskEventsHandler, Task } from '../types';
+import { TaskOption, ETaskEvents, ETaskStatus } from '../types';
 import { UploadEvent, UploadConfig } from '../api/upload/types';
-import { extractObj, sleeper } from '../../utils/helper';
+import { sleeper, extractObj } from '../../utils/helper';
 import { Canceler, AxiosResponse, AxiosError } from 'axios';
-import TaskManager from '../TaskManager';
 /**
  * 直传任务
  */
 class DirectTask extends BaseTask {
   private _retryTime: number;
-  constructor(file: File) {
-    super(file);
+  constructor(file: File, options: TaskOption) {
+    super(file, options);
     this._type = ETaskType.SIMPLE;
     this._retryTime = 0;
   }
 
-  upload(task: Task, cancelerHandler: Canceler, taskEventsHandler?: TaskEventsHandler): Canceler {
-    let file = task.payload;
-    let option = task.config;
+  upload(cancelerHandler: Canceler): Canceler {
     let that = this;
+    let file = this.file;
+    let option = this.option;
     let config: UploadConfig = extractObj(option, ['apikey', 'name', 'delay', 'host', 'mimetype', 'retryCount', 'retryMaxTime', 'timeout', 'progressInterval']) as UploadConfig;
     let uploadEvent = {
-      success: taskEventsHandler.success,
+      success: (res) => {
+        that.status = ETaskStatus.COMPLETED;
+        that.eventEmitter.emit(ETaskEvents.SUCCESS, res, that);
+      },
       error: (err) => {
         console.timeEnd('timeout');
-        if (config.retryCount > this._retryTime) {
-          this._retryTime++;
+        if (config.retryCount > that._retryTime) {
+          that._retryTime++;
           sleeper(config.retryMaxTime).then(_ => {
-            taskEventsHandler.retry(file);
+            that.eventEmitter.emit(ETaskEvents.RETRY, file, that);
             // retry
             // console.log('retry simple task');
-            task.cancelHandler = upload(file, config, uploadEvent);
+            that.cancelHandler = upload(file, config, uploadEvent);
           });
         } else {
-          taskEventsHandler.failed(err);
+          that.status = ETaskStatus.FAILED;
+          that.eventEmitter.emit(ETaskEvents.FAIL, err, that);
         }
       },
     };
     cancelerHandler = upload(file, config,  uploadEvent as UploadEvent);
+    that.cancelHandler = cancelerHandler;
     return cancelerHandler;
   }
 

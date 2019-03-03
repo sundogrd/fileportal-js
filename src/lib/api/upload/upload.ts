@@ -58,12 +58,38 @@ function uploadFile(context: Context, token?: UploadEvent): Canceler {
     console.time('timeout');
     console.log(file);
     let xhr = new XMLHttpRequest();
-    xhr.onload = (e: ProgressEvent) => {
-      console.log('axios success');
-      token && token.success && token.success.call(this, e);
-    };
+    // if (XMLHttpRequest) {
+    //   xhr = new XMLHttpRequest();
+    // } else {
+    //   xhr = new ActiveXObject('Microsoft.XMLHTTP');
+    // }
+    // xhr.onload = (e: ProgressEvent) => {
+    //   console.log('axios success');
+    //   token && token.success && token.success.call(this, e);
+    // };
     xhr.open('POST', config.host);
     xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+    if (token) {
+      if (token.success && typeof token.success === 'function') {
+        xhr.onload = (e) => {
+          console.log('axios success');
+          token && token.success && token.success.call(this, e);
+        };
+      }
+
+      if (token.error && typeof token.error === 'function') {
+        xhr.addEventListener('error', token.error, false);
+      }
+
+      if (token.progress && typeof token.progress === 'function') {
+        xhr.addEventListener('progress', token.progress, false);
+
+      }
+
+      if (token.abort && typeof token.abort === 'function') {
+        xhr.addEventListener('abort', token.abort, false);
+      }
+    }
     xhr.send(file);
     // return iAxios({
     //   method: 'post',
