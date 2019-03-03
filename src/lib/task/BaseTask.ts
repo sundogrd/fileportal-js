@@ -1,3 +1,9 @@
+import { ETaskType } from './type';
+import { upload } from '../api/upload/upload';
+import { TaskOption, TaskEventsHandler, Task } from '../types';
+import { UploadEvent } from '../api/upload/types';
+import { Canceler } from 'axios';
+
 /**
  * 上传任务
  */
@@ -13,6 +19,7 @@ abstract class BaseTask {
   protected _isFinish: boolean = false;// 是否结束
   protected _result: Object;
   protected _error: any;
+  protected _type: ETaskType;
 
   constructor(file: File) {
     this._file = file;
@@ -25,6 +32,14 @@ abstract class BaseTask {
 
   public set file(file: File) {
     this._file = file;
+  }
+
+  get type(): ETaskType {
+    return this._type;
+  }
+
+  set type(type: ETaskType) {
+    this._type = type;
   }
 
   get retry(): number {
@@ -105,6 +120,11 @@ abstract class BaseTask {
 
   set isFinish(value: boolean) {
     this._isFinish = value;
+  }
+
+  upload(task: Task, cancelHandler?: Canceler | Canceler[], eventCB?: TaskEventsHandler): any {
+    // code here
+    return;
   }
 }
 

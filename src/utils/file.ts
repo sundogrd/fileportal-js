@@ -1,6 +1,6 @@
 import { atob } from 'abab';
 import { getMD5 } from './md5';
-import { PartObj, Context } from '../lib/api/upload/types';
+// import { PartObj, Context } from '../lib/api_bak/upload/types';
 
 /**
  * Is file?
@@ -30,7 +30,7 @@ const isBlob = (blob: any): boolean => {
  * @private
  * @returns {Blob}
  */
-const b64toBlob = (b64Data: string, sliceSize = 512) => {
+const b64toBlob = (b64Data: string, sliceSize = 512): Blob => {
   let byteString;
   let contentType = '';
   if (b64Data.split(',')[0].indexOf('base64') >= 0) {
@@ -60,21 +60,21 @@ const b64toBlob = (b64Data: string, sliceSize = 512) => {
  * @private
  * @returns Object where keys are `start` and `end`
  */
-const getRange = ({ config, file }: Context, partNumber: number) => {
-  const start = partNumber * config.partSize;
-  const end = Math.min(start + config.partSize, file.size);
-  return { start, end };
-};
+// const getRange = ({ config, file }: Context, partNumber: number) => {
+//   const start = partNumber * config.partSize;
+//   const end = Math.min(start + config.partSize, file.size);
+//   return { start, end };
+// };
 
-/**
- * Slice file into a single part
- * @private
- */
-const sliceFile = (ctx: Context, partNumber: number) => {
-  const slice = File.prototype.slice;
-  const { start, end } = getRange(ctx, partNumber);
-  return slice.call(ctx.file, start, end);
-};
+// /**
+//  * Slice file into a single part
+//  * @private
+//  */
+// const sliceFile = (ctx: Context, partNumber: number) => {
+//   const slice = File.prototype.slice;
+//   const { start, end } = getRange(ctx, partNumber);
+//   return slice.call(ctx.file, start, end);
+// };
 
 /**
  * Reads file as ArrayBuffer using HTML5 FileReader implementation
@@ -100,30 +100,31 @@ const readFile = (file: any) => {
  * Reads a slice of a file based on the current part.
  * @private
  */
-export const getPart = async (part: PartObj, ctx: Context): Promise<PartObj> => {
-  const evt = await readFile(sliceFile(ctx, part.number)) as any;
-  const buffer = evt.target.result;
-  const newPart = {
-    ...part,
-    buffer,
-    size: buffer.byteLength,
-    md5: await getMD5(buffer, null),
-  };
-  return newPart;
-};
+// export const getPart = async (part: PartObj, ctx: Context): Promise<PartObj> => {
+//   const evt = await readFile(sliceFile(ctx, part.number)) as any;
+//   const buffer = evt.target.result;
+//   const newPart = {
+//     ...part,
+//     buffer,
+//     size: buffer.byteLength,
+//     md5: await getMD5(buffer, null),
+//   };
+//   return newPart;
+// };
 
 /**
  * Get a Blob from a File or string.
  * @private
  */
-export const getFile = (fileOrString: String | Blob): Blob | TypeError => {
+export const getFile = (fileOrString: String | Blob): File => {
   let file: any = fileOrString;
   if (typeof fileOrString === 'string') {
     file = b64toBlob(file);
   }
   if (!file || !isBlob(file)) {
-    return new TypeError('File argument is not a valid Blob');
+    throw new TypeError('File argument is not a valid Blob');
   }
+  console.log('file:',file.type, (file as File).size);
   return file;
 };
 

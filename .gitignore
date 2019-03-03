@@ -3,3 +3,4 @@ package-lock.json
 build/
 server/upload/*
 server/temp/*
+.rpt2_cache/*

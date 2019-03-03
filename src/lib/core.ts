@@ -1,75 +1,105 @@
-import TaskManager, { Task, Tasks } from './TaskManager';
+// import { Omit } from 'utility-types';
+import TaskManager from './TaskManager';
 import { EMimeType } from '../types/upload';
 import Logger from './logger';
 import { ChunkTask } from './task/ChunkTask';
 import DirectTask from './task/DirectTask';
-import { UploadConfig, UploadOptions } from './api/upload/types';
 import BaseTask from './task/BaseTask';
 import { noop } from '../utils/helper';
-export interface FilePortalOptions {
-  debug: boolean;
-  chunkSize: number;
-  accept: EMimeType;
-
-  [option: string]: any;
-  tokenFun: () => Promise<string>;
-}
-
-export interface AddOptions {
-  // immediate: boolean;  // 加入后立即上传
-  token: () => Promise<string> | string;
-  extra?: Object;
-  config: UploadConfig;
-}
-
-export interface EventResponse {
-  complete?: ((tasks?: Tasks) => any);
-  error?: ((err?: any, tasks?: Tasks, task?: Task) => any);
-  uploaded?: (res?: any, tasks?: Tasks, task?: Task) => any;
-}
-
-export const enum Events {
-  COMPLETE = 'complete',  // 所有task完成
-  UPLOADED = 'uploaded',  // 某个task完成
-  ERROR =  'error',       // task出错
-}
+import { FilePortalOptions, TaskOption, EFilePortalStatus, FilePortalCompleteCB, FilePortalErrorCB, FilePortalUploadedCB, FilePortalStartCB, SmartType, FilePortalEventResponse, Task, EFilePortalEvents } from './types';
+import defaultOptions from '../config/index';
+import { Cancel } from 'axios';
+import defaultTaskOption from '../config/task';
+import { getFile } from '../utils/file';
 
 export default class FilePortal {
   debug;
+  status: EFilePortalStatus;
   options: FilePortalOptions;
   taskManager: TaskManager;
-  events: EventResponse;
-  constructor(options?: FilePortalOptions) {
+  events: FilePortalEventResponse;
+  hasStarted: boolean;
+  constructor(options: FilePortalOptions) {
     // super();
+    this.status = EFilePortalStatus.INIT;
     this.debug = new Logger('filePortal/core');
-    this.options = options;
-    this.taskManager = new TaskManager(this);
+    this.hasStarted = false;
+    this.options = {
+      ...defaultOptions,
+      ...options,
+    };
+    this.taskManager = new TaskManager(this, this.options);
     this.events = {
       complete: noop,
       error: noop,
       uploaded: noop,
+      start: noop,
     };
+
+    this._validate(this);
   }
 
-  static BLOCK_SIZE = 4 * 1024 * 1024;
-  static CHUNK_SIZE = 2 * 1024 * 1024;
-  private generateTask = (file: File): BaseTask => {
-    if (file.size > FilePortal.BLOCK_SIZE) {
-      return new ChunkTask(file, FilePortal.BLOCK_SIZE, FilePortal.CHUNK_SIZE);
-    } else {
-      return new DirectTask(file);
+  private _generateTask = (file: File, op: boolean | SmartType = true): BaseTask => {
+    const { chunkStartSize, chunkSize } = this.options;
+    switch (op) {
+      case true: {
+        if (file.size > chunkStartSize) {
+          // 没有block，只有chunk
+          return new ChunkTask(file, chunkSize, chunkSize);
+        } else {
+          return new DirectTask(file);
+        }
+        break;
+      }
+      // TODO: 3.9
+      case SmartType.MULTIPART: {
+        // code here
+        break;
+      }
+      case SmartType.SIMPLE: {
+        // code here
+        break;
+      }
+      default: {
+        // code here
+      }
     }
   }
 
-  addTask(file: any, options: AddOptions): Task {
+  addTask(file: any, options: TaskOption): Task {
     this.debug.log('upload start');
-    /* istanbul ignore next */
-    let task: BaseTask = this.generateTask(file);
+    const fileBlob: File = getFile(file);
+    console.log(fileBlob);
+    if ((fileBlob.size !== undefined && fileBlob.size === 0)) {
+      throw new Error('file has a size of 0.');
+    }
+    let task: BaseTask = this._generateTask(fileBlob, this.options.smart || true);
     return this.taskManager.addTask(task, options);
   }
 
-  start(tid: string) {
-    return this.taskManager.start(tid);
+  start(tid: string): Task {
+    if (!this.hasStarted) {
+      this.events.start.call(this);
+      this.hasStarted = true;
+    }
+    let task: Task = this.taskManager.start(tid);
+    return task;
+  }
+
+  startAll() {
+    if (!this.hasStarted) {
+      this.events.start.call(this);
+      this.hasStarted = true;
+    }
+    // code here
+  }
+
+  stop(tid: string): any {
+    // code here
+  }
+
+  stopAll(tid: string): any {
+    // code here
   }
 
   pause(tid: string) {
@@ -82,46 +112,61 @@ export default class FilePortal {
     return this;
   }
 
-  cancel(tid: string, message?: string, cb?: () => any) {
+  cancel(tid: string, message?: string, cb?: (task?: Task) => any) {
     this.taskManager.cancel(tid, message, cb);
     return this;
   }
 
-  complete(cb: (tasks?: Tasks, task?: Task, source?: string) => any) {
+  cancelAll() {
+    // code here
+  }
+
+  completed(cb: FilePortalCompleteCB) {
     this.events.complete = cb;
   }
 
-  uploaded(cb: (res?: any, tasks?: Tasks, task?: Task, source?: string) => any) {
+  uploaded(cb: FilePortalUploadedCB) {
     this.events.uploaded = cb;
   }
 
-  error(cb: (err?: any, tasks?: Tasks, task?: Task) => any) {
+  error(cb: FilePortalErrorCB) {
     this.events.error = cb;
+  }
+  started(cb: FilePortalStartCB) {
+    this.events.start = cb;
+  }
+
+  getTask(tid: string): Task {
+    let task: Task = this.taskManager.getTask(tid);
+    return task;
   }
 
   on(evt: string, cb): void {
-    if (evt === Events.COMPLETE) {
-      this.complete(cb);
+    if (evt === EFilePortalEvents.COMPLETED) {
+      this.completed(cb);
     }
-    if (evt === Events.ERROR) {
+    if (evt === EFilePortalEvents.ERROR) {
       this.error(cb);
     }
-    if (evt === Events.UPLOADED) {
+    if (evt === EFilePortalEvents.UPLOADED) {
       this.uploaded(cb);
+    }
+    if (evt === EFilePortalEvents.STARTED) {
+      this.started(cb);
     }
     return;
   }
-  // simpleUpload() {
-  //   return simpleUpload('keke', {
-  //     config: {
-  //       host: 'localhost:8089',
-  //     },
-  //   } as any);
-  // }
+
   setOptions(options: FilePortalOptions) {
     this.options = {
       ...this.options,
       ...options,
     };
+  }
+
+  _validate(filePortal: FilePortal) {
+    if (!filePortal.options.host) {
+      throw new Error('required host in options');
+    }
   }
 }
