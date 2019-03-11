@@ -16,7 +16,7 @@ export default class FilePortal {
   taskManager: TaskManager;
   hasStarted: boolean;
   eventEmitter: EventEmitter;
-  constructor(options: FilePortalOptions) {
+  constructor(options?: FilePortalOptions) {
     // super();
     this.status = EFilePortalStatus.INIT;
     this.debug = new Logger('filePortal/core');
@@ -28,7 +28,7 @@ export default class FilePortal {
     this.taskManager = new TaskManager();
     this.eventEmitter = new EventEmitter();
     this.taskManager.eventEmitter = this.eventEmitter;
-    this._validate(this);
+    // this._validate(this);
   }
 
   private _generateTask = (file: File, op: boolean | SmartType = true, options: TaskOption): BaseTask => {
@@ -69,6 +69,7 @@ export default class FilePortal {
       ...this.options,
       ...options,
     };
+    this._validate(mergeOptions);
     let task: BaseTask = this._generateTask(fileBlob, mergeOptions.smart || true, mergeOptions);
     return this.taskManager.addTask(task);
   }
@@ -168,8 +169,8 @@ export default class FilePortal {
     };
   }
 
-  private _validate(filePortal: FilePortal) {
-    if (!filePortal.options.host) {
+  private _validate(options) {
+    if (!options.host) {
       throw new Error('required host in options');
     }
   }

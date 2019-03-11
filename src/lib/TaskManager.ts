@@ -1,7 +1,6 @@
 // import * as EventEmitter from 'eventemitter3';
 import BaseTask from './task/BaseTask';
-import { CancelToken, Canceler, AxiosResponse, AxiosError } from 'axios';
-import { Tasks, Task, ETaskStatus, TaskOption, TaskBaseCB, ETaskEvents, EFilePortalEvents } from './types';
+import { Tasks, Task, ETaskStatus, ETaskEvents, EFilePortalEvents, Canceler } from './types';
 import { ETaskType } from './task/type';
 import EventEmitter from './EventEmitter';
 
@@ -44,8 +43,8 @@ export default class TaskManager {
   }
   // 为FilePortal注册回调
   registCallback(task) {
-    task.eventEmitter.on(ETaskEvents.SUCCESS, (ctx, evt, task) => {
-      this.eventEmitter.emit(EFilePortalEvents.UPLOADED, evt, task, ctx.getTasks());
+    task.eventEmitter.on(ETaskEvents.SUCCESS, (ctx, res, task) => {
+      this.eventEmitter.emit(EFilePortalEvents.UPLOADED, res, task, ctx.getTasks());
       let isComplete: boolean = Object.keys(this.tasks).every((taskId: string) => {
         return this.tasks[taskId].status === ETaskStatus.COMPLETED;
       });
@@ -53,8 +52,8 @@ export default class TaskManager {
         this.eventEmitter.emit(EFilePortalEvents.COMPLETED, ctx.getTasks());
       }
     }, this);
-    task.eventEmitter.on(ETaskEvents.FAIL, (ctx, evt, task) => {
-      this.eventEmitter.emit(EFilePortalEvents.ERROR, evt, task, ctx.getTasks());
+    task.eventEmitter.on(ETaskEvents.FAIL, (ctx, err, task) => {
+      this.eventEmitter.emit(EFilePortalEvents.ERROR, err, task, ctx.getTasks());
     }, this);
   }
   getTasks(): Tasks {
@@ -73,7 +72,7 @@ export default class TaskManager {
       cancelHandler = [];
       this._upload(task, cancelHandler);
     }
-    task.cancelHandler = cancelHandler;
+    task.cancelHandler = cancelHandler as Canceler | Canceler[];
     return task;
   }
   pause(taskId: string): void {
@@ -83,26 +82,22 @@ export default class TaskManager {
     return;
   }
   cancel(taskId: string, message?: string, cb?: (task?: Task) => any): void {
-    // code
-    setTimeout(() => {
-      let task = this.tasks[taskId];
-      let canceler: Canceler | Canceler[] = task.cancelHandler;
-      // task. = ETaskStatus.CANCELED;
-      if (Array.isArray(canceler)) {
-        if (canceler.length === 0) {
-          console.log('所有的请求都已被处理，不能取消了');
-          return;
-        }
-        canceler.forEach(c => c(message));
-      } else {
-        canceler(message);
+    let task = this.tasks[taskId];
+    // 注册cancel回调
+    task.on('cancel', cb);
+    if (!task.cancelHandler) {
+      throw new Error('必须start之后才能cancel');
+    }
+    let canceler: Canceler | Canceler[] = task.cancelHandler;
+    if (Array.isArray(canceler)) {
+      if (canceler.length === 0) {
+        console.log('所有的请求都已被处理，不能取消了');
+        return;
       }
-      if (cb) {
-        // this.events.cancel = cb;
-      }
-      // this.events.cancel.call(this);
-      task.status = ETaskStatus.CANCELED;
-      return;
-    }, 0);
+      canceler.forEach(c => c(message));
+    } else {
+      canceler(message);
+    }
+    return;
   }
 }

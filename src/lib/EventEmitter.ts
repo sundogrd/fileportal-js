@@ -8,6 +8,7 @@
  *  基本用法
  *  let em = new EventEmitter()
  *  let context = someObjectYouWantToWatchEvent;
+ *  // 注意这里第一个参数是上下文对象
  *  em.on('start', function(ctx, arg1, arg2, arg2) {
  *  // code here
  *  }, context)
@@ -151,7 +152,7 @@ class EventEmitter {
    * @memberof EventEmitter
    */
   once(evt: string, fn: AnyFunction, ctx): EventEmitter {
-    console.log('once');
+    // console.log('once');
     let listener = new BaseEvent(fn, ctx || this, true);
     return this._addListener(evt, listener);
   }

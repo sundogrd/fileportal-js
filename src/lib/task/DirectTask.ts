@@ -1,10 +1,9 @@
 import BaseTask from './BaseTask';
 import { ETaskType } from './type';
 import { upload } from '../api/upload/upload';
-import { TaskOption, ETaskEvents, ETaskStatus } from '../types';
+import { TaskOption, ETaskEvents, ETaskStatus, Canceler } from '../types';
 import { UploadEvent, UploadConfig } from '../api/upload/types';
 import { sleeper, extractObj } from '../../utils/helper';
-import { Canceler, AxiosResponse, AxiosError } from 'axios';
 /**
  * 直传任务
  */
@@ -41,6 +40,14 @@ class DirectTask extends BaseTask {
           that.eventEmitter.emit(ETaskEvents.FAIL, err, that);
         }
       },
+      cancel: (message) => {
+        that.status = ETaskStatus.CANCELED;
+        that.eventEmitter.emit(ETaskEvents.CANCEL, message, that);
+      },
+      // abort: () => {
+      //   that.status = ETaskStatus.FAILED;
+      //   that.eventEmitter.emit(ETaskEvents.FAIL, null, that);
+      // }
     };
     cancelerHandler = upload(file, config,  uploadEvent as UploadEvent);
     that.cancelHandler = cancelerHandler;

@@ -159,4 +159,5 @@ export interface UploadEvent {
   error: (err?: Event) => any;
   progress?: (evt?: ProgressEvent) => any;
   abort?: (evt?: Event) => any;
+  cancel?: (msg?: any) => any;
 }

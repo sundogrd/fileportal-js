@@ -89,12 +89,14 @@ event | des | callback
 
 #### 2.4.1 Task事件监听
 
+单个task进行监听时回调参数会有些不同，第一个参数为task对象，第二个为响应对象
+
 ```javascript
 client.getTask(tid: String).on(evt: String, cb: EventCB) 
 eg: 
 let {tid} = client.addTask('test', {});
 let task = client.start(tid);
-task.on('success', (res, task, tasks) => {
+task.on('success', (task, res) => {
     // code here
 });
 ```

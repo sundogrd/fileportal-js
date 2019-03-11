@@ -1,8 +1,5 @@
 import { ETaskType } from './type';
-import { upload } from '../api/upload/upload';
-import { TaskOption, Task, ETaskStatus, ETaskEvents } from '../types';
-import { UploadEvent } from '../api/upload/types';
-import { Canceler } from 'axios';
+import { TaskOption, Canceler, ETaskStatus, ETaskEvents } from '../types';
 import EventEmitter from '../EventEmitter';
 
 /**

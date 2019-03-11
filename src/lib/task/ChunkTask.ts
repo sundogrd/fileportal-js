@@ -9,8 +9,8 @@ import { extractObj, sleeper } from '../../utils/helper';
  * 分块任务
  */
 class ChunkTask extends BaseTask {
-  responses: AxiosResponse[];
-  errors: AxiosError[];
+  responses: Event[];
+  errors: Error[];
   // 分块
   private _blocks: Block[] = [];
   private _blockSize: number = 0;
