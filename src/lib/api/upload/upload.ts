@@ -1,7 +1,6 @@
 import { State, UploadOptions, UploadConfig, Context, Status, UploadEvent } from './types';
 import { getFile, closeFile } from '../../../utils/file';
-import { createAxios, getCancelHandler } from '../request';
-import { Canceler } from 'axios';
+import { Canceler } from '../../types';
 import { sleeper } from '../../../utils/helper';
 /**
  * @private
@@ -41,53 +40,69 @@ export const upload = (fileStringOrBlob, uploadConfig: UploadConfig, callbacks?:
 export const simpleUpload = upload;
 
 function uploadFile(context: Context, token?: UploadEvent): Canceler {
-  const fd = new FormData();
+  // const fd = new FormData();
   const { file, config } = context;
-  const { size, name, type } = file;
-  let iAxios = createAxios();
-  // fd.append('file', file, name);
-  // fd.append('option', JSON.stringify({
-  //   size,
-  //   name,
-  //   type,
-  // }));
-  // if (config.chunk) {
-  //   fd.append('chunk', JSON.stringify(config.chunk));
-  // }
-  sleeper(config.delay).then(() => {
-    console.time('timeout');
-    console.log(file);
-    let xhr = new XMLHttpRequest();
-    xhr.onload = (e: ProgressEvent) => {
-      console.log('axios success');
-      token && token.success && token.success.call(this, e);
-    };
-    xhr.open('POST', config.host);
-    xhr.setRequestHeader('Content-Type', 'application/octet-stream');
-    xhr.send(file);
-    // return iAxios({
-    //   method: 'post',
-    //   // headers: {
-    //   //   'Content-Type': 'octet-stream',
-    //   // },
-    //   timeout: config.timeout,
-    //   data: file,
-    //   // onUploadProgress: function(e) {
-    //   //   if (e.lengthComputable) {
-    //   //     console.log(e.loaded + ' ' + e.total);
-    //   //     this.updateProgressBarValue(e);
-    //   //   }
-    //   // //   let percentCompleted = Math.round((e.loaded * 100) / e.total);
-    //   // //   console.log(percentCompleted);
-    //   // },
-    // }).then(res => {
-    //   console.log('axios success');
-    //   token && token.success && token.success.call(this, res);
-    // }).catch(err => {
-    //   console.log('axios failed');
-    //   token && token.error && token.error.call(this, err);
-    // });
+  // const { size, name, type } = file;
+
+  let symbol = Symbol('request');
+  let abortSymbol;
+  let xhr = new XMLHttpRequest();
+  let canceler;
+  let cancelToken = new Promise(resolve => {
+    canceler = resolve;
   });
-  return getCancelHandler(iAxios);
+  let request = sleeper(config.delay).then(() => {
+    console.time('timeout');
+    // console.log(file);
+    return new Promise((resolve, reject) => {
+      if (token) {
+        if (token.success && typeof token.success === 'function') {
+          xhr.onload = (e) => {
+            // console.log('request success');
+            // 这里应该用xhr.response
+            let res = xhr.response;
+            token && token.success && token.success.call(token, res);
+            return resolve(symbol);
+          };
+        }
+
+        if (token.error && typeof token.error === 'function') {
+          xhr.addEventListener('error', (err) => {
+            console.log('rquest error');
+            token.error.call(token, err);
+            return reject(symbol);
+          }, false);
+        }
+
+        if (token.progress && typeof token.progress === 'function') {
+          xhr.addEventListener('progress', token.progress, false);
+        }
+
+        if (token.abort && typeof token.abort === 'function') {
+          xhr.addEventListener('abort', (evt) => {
+            console.log('request abort');
+            !abortSymbol && token.abort.call(token, evt);
+            return reject(symbol);
+          }, false);
+        }
+      }
+      xhr.send(file);
+    });
+  });
+
+  xhr.open('POST', config.host);
+  xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+
+  Promise.race([request, cancelToken]).then((res: Symbol | String) => {
+    if (res !== symbol) {
+      abortSymbol = Symbol('abort');
+      // cancel操作
+      xhr.abort();
+      if (token.cancel && typeof token.cancel === 'function') {
+        token.cancel(res);
+      }
+    }
+  });
+  return canceler;
 }
 // TODO: 多文件 分片 断点续传 中断 取消 重传 上传进度

@@ -1,5 +1,4 @@
 // FilePortal
-import { Canceler, Cancel } from 'axios';
 import BaseTask from './task/BaseTask';
 import { Block } from './task/ChunkTask';
 import TaskManager from './TaskManager';
@@ -65,7 +64,7 @@ export type Task = {
 };
 
 export type Tasks = {
-  [taskId: string]: Task
+  [taskId: string]: BaseTask
 };
 
 /************** FILEPORTAL **************/
@@ -151,12 +150,15 @@ export const enum ETaskEvents {
   SUCCESS = 'success',
 }
 
-export interface TaskEventsHandler {
-  preupload?: (task?: Task) => any;
-  cancel?: (task?: Task) => any;
-  retry?: (fileOrBlock?: any, task?: Task) => any;
-  success: (res?: any, task?: Task, tasks?: Tasks) => any;
-  failed: (err?: any, task?: Task, tasks?: Tasks) => any;
-  pause?: (task?: Task) => any;
-  resume?: (task?: Task) => any;
+export interface Canceler {
+  (message?: string): void;
 }
+// export interface TaskEventsHandler {
+//   preupload?: (task?: Task) => any;
+//   cancel?: (task?: Task) => any;
+//   retry?: (fileOrBlock?: any, task?: Task) => any;
+//   success: (res?: any, task?: Task, tasks?: Tasks) => any;
+//   failed: (err?: any, task?: Task, tasks?: Tasks) => any;
+//   pause?: (task?: Task) => any;
+//   resume?: (task?: Task) => any;
+// }

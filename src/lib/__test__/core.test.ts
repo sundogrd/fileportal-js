@@ -36,17 +36,16 @@ describe('upload test', () => {
     let tasks = client.addTask(dataURI, {
       token: 'test token',
       apiKey: 'test key',
-      // host: 'http://0.0.0.0:9991/upload',
+      host: 'http://127.0.0.1:9991/upload',
     });
     let { id } = tasks;
     client.start(id);
-    client.on('complete', (tasks) => {
-      console.log(tasks[0].id);
+    client.on('completed', (tasks) => {
       console.log('completed !!!');
       // done();
     });
     client.on('uploaded', (res, task, tasks) => {
-      console.log(res.data);
+      console.log(res);
       done();
     });
     client.on('error', (err) => {
@@ -54,22 +53,65 @@ describe('upload test', () => {
     });
   }, 10000);
 
-  // it('cancel upload', (done) => {
-  //   let client = new FilePortal();
-  //   let tasks = client.addTask(dataURI, {
-  //     token: 'test token',
-  //     apikey: 'test key',
-  //     host: 'http://127.0.0.1:9991/upload',
-  //     // delay: 2000,  // 延迟2s, 方便取消
+  it('simple upload with task callback',  (done) => {
+    let client = new FilePortal({
+      host: 'http://os.sundogrd.com/upload',
+      apiKey: 'keke',
+      token: 'keke',
+    });
+    let tasks = client.addTask(dataURI, {
+      token: 'test token',
+      apiKey: 'test key',
+      host: 'http://127.0.0.1:9991/upload',
+    });
+    let { id } = tasks;
+    client.start(id).on('success', (task, res) => {
+      console.log(res);
+      done();
+    });
+    client.on('error', (err) => {
+      console.log(err);
+    });
+  }, 10000);
 
-  //   });
-  //   let { id } = tasks;
-  //   client.start(id);
-  //   client.cancel(id, 'cancelTask here', () => {
-  //     console.log('cancel success');
-  //     done();
-  //   });
-  // });
+  it('cancel upload', (done) => {
+    let client = new FilePortal();
+    let tasks = client.addTask(dataURI, {
+      token: 'test token',
+      apiKey: 'test key',
+      host: 'http://127.0.0.1:9991/upload',
+      delay: 2000,
+    });
+    let { id } = tasks;
+    client.start(id);
+    client.cancel(id, 'cancelTask here', (task) => {
+      console.log(task);
+      console.log('cancel success');
+      done();
+    });
+  });
+
+  it('cancel upload not work', (done) => {
+    let client = new FilePortal();
+    let tasks = client.addTask(dataURI, {
+      token: 'test token',
+      apiKey: 'test key',
+      host: 'http://127.0.0.1:9991/upload',
+      delay: 200,
+    });
+    let { id } = tasks;
+    client.start(id).on('success', () => {
+      console.log('我在cancel之前成功了!');
+      done();
+    });
+    setTimeout(() => {
+      client.cancel(id, 'cancelTask here', (task) => {
+        console.log(task);
+        console.log('cancel success');
+      });
+    }, 2000);
+
+  });
 
   // it('chunk upload', (done) => {
   //   let client = new FilePortal();

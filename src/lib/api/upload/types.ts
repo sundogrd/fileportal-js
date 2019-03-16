@@ -155,6 +155,9 @@ export interface PartsMap {
 }
 
 export interface UploadEvent {
-  success: (res?: AxiosResponse) => any;
-  error: (err?: AxiosError) => any;
+  success: (res?: Event) => any;
+  error: (err?: Event) => any;
+  progress?: (evt?: ProgressEvent) => any;
+  abort?: (evt?: Event) => any;
+  cancel?: (msg?: any) => any;
 }
