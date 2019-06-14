@@ -1,7 +1,7 @@
 import BaseTask from './BaseTask';
 import { ETaskType } from './type';
 import { upload } from '../api/upload/upload';
-import { TaskOption, Task, TaskEventsHandler, ETaskStatus } from '../types';
+import { TaskOption, Task, ETaskStatus, ETaskEvents } from '../types';
 import { UploadEvent, UploadConfig, ChunkObj } from '../api/upload/types';
 import { Canceler, AxiosResponse, AxiosError } from 'axios';
 import { extractObj, sleeper } from '../../utils/helper';
@@ -9,9 +9,8 @@ import { extractObj, sleeper } from '../../utils/helper';
  * 分块任务
  */
 class ChunkTask extends BaseTask {
-  task: Task;
-  responses: AxiosResponse[];
-  errors: AxiosError[];
+  responses: Event[];
+  errors: Error[];
   // 分块
   private _blocks: Block[] = [];
   private _blockSize: number = 0;
@@ -22,8 +21,8 @@ class ChunkTask extends BaseTask {
    * @param blockSize 块大小
    * @param chunkSize 片大小
    */
-  constructor(file: File, blockSize: number, chunkSize: number) {
-    super(file);
+  constructor(file: File, blockSize: number, chunkSize: number, options: TaskOption) {
+    super(file, options);
     this._blockSize = blockSize;
     this._chunkSize = chunkSize;
     this.spliceFile2Block();
@@ -167,9 +166,9 @@ class ChunkTask extends BaseTask {
   }
 
   // code here
-  upload(task: Task, cancelerHandler: Canceler[], taskEventsHandler?: TaskEventsHandler) {
-    this.task = task;
-    let option = task.config;
+  upload(cancelerHandler: Canceler[]) {
+    // this.task = task;
+    let option = this.option;
     let config: UploadConfig = extractObj(option, ['apikey', 'name', 'delay', 'host', 'mimetype', 'retryCount', 'retryMaxTime', 'timeout', 'progressInterval']) as UploadConfig;
     // 分块上传 上传之前需查看是否已经上传该块 需要服务器端支持 待续
     // code here
@@ -177,7 +176,7 @@ class ChunkTask extends BaseTask {
     for (let i = 0; i < concurrency && i < this.blocks.length; i++) {
       let block = this.blocks[i];
       block.processing = true;
-      this._excutor(block, config, cancelerHandler, taskEventsHandler);
+      this._excutor(block, config, cancelerHandler);
     }
     return cancelerHandler;
   }
@@ -192,7 +191,7 @@ class ChunkTask extends BaseTask {
    * @returns
    * @memberof ChunkTask
    */
-  private _excutor(block: Block, config: UploadConfig, cancelers: Canceler[], taskEventsHandler?: TaskEventsHandler) {
+  private _excutor(block: Block, config: UploadConfig, cancelers: Canceler[]) {
     let that = this;
     // console.log('_excutor');
     // 添加chunk参数
@@ -200,27 +199,28 @@ class ChunkTask extends BaseTask {
       chunkIndex: block.index,
       size: block.size,
       totalChunks: that.blocks.length,
-      file: that.task.id,
+      file: that.id,
     } as ChunkObj;
     return this._upload(block, config, cancelers).then((res) => {
       // console.log('this is correct res');
       // 删除canceler
       cancelers.splice(block.index, 1);
-      this.responses.push(res as AxiosResponse);
+      this.responses.push(res);
       // 判断是否还有剩余任务
       if (that.unProcessingBlocks.length) {
         let unProcessBlock = that.unProcessingBlocks[0];
         unProcessBlock.processing = true;
-        return that._excutor(unProcessBlock, config, cancelers, taskEventsHandler);
+        return that._excutor(unProcessBlock, config, cancelers);
       }
       // 所有分块是否完成
       if (that.finishedBlocksSize === that.blocks.length) {
         // 任务完成
-        if (that.task.state === ETaskStatus.COMPLETED) {
+        if (that.status === ETaskStatus.COMPLETED) {
           return;
         } else {
-          that.task.state = ETaskStatus.COMPLETED;
-          taskEventsHandler.success(this.responses);
+          that.status = ETaskStatus.COMPLETED;
+          // taskEventsHandler.success(this.responses);
+          that.eventEmitter.emit(ETaskEvents.SUCCESS, this.responses);
         }
       }
     }, err => {
@@ -232,15 +232,17 @@ class ChunkTask extends BaseTask {
         block.retryTime++;
         return sleeper(config.retryMaxTime).then(_ => {
           // console.log('retry');
-          taskEventsHandler.retry(block);
-          return that._excutor(block, config, cancelers, taskEventsHandler);
+          // taskEventsHandler.retry(block);
+          that.eventEmitter.emit(ETaskEvents.RETRY, block);
+          return that._excutor(block, config, cancelers);
         });
       } else {
         // console.log('final failed');
         this.errors.push(err);
         // 此时可能已经成功上传几个分片了
         // code here
-        taskEventsHandler.failed(this.errors);  // chunkError
+        // taskEventsHandler.failed(this.errors);  // chunkError
+        that.eventEmitter.emit(ETaskEvents.FAIL, this.errors);
         return Promise.reject(err);
       }
     }).catch(err => {
@@ -260,14 +262,14 @@ class ChunkTask extends BaseTask {
  * @returns {Promise<any>}
  * @memberof ChunkTask
  */
-  private _upload(block: Block, option: UploadConfig, cancelers: Canceler[]): Promise<AxiosError | AxiosResponse> {
+  private _upload(block: Block, option: UploadConfig, cancelers: Canceler[]): Promise<Event> {
     return new Promise((resolve, reject) => {
       const uploadEvents: UploadEvent = {
-        success: (res?: AxiosResponse) => {
+        success: (res?: Event) => {
           block.isFinish = true;
           resolve(res);
         },
-        error: (err?: AxiosError) => {
+        error: (err?: Event) => {
           // code here
           reject(err);
         },
